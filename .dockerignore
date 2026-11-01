@@ -1,0 +1,15 @@
+.git
+.local
+.env
+.env.*
+backend/.env
+backend/.env.*
+backend/vendor
+backend/node_modules
+backend/storage/logs/*
+backend/bootstrap/cache/*.php
+backend/.phpstan-cache
+backend/.phpunit.cache
+frontend/node_modules
+frontend/dist
+frontend/coverage

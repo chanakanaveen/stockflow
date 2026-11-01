@@ -1,6 +1,6 @@
 # Phase 0: architecture and discovery
 
-Status: design prepared for review; application implementation has not begun.
+Status: Phase 0 design accepted through Phase 1 authorization. The user approved isolated native MySQL validation with Compose configuration supplied, because Docker was unavailable. Historical discovery observations below describe the Phase 0 starting point; see setup.md and implementation-status.md for current implementation.
 
 ## Repository and environment, 2026-10-30
 

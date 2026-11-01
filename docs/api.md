@@ -1,6 +1,6 @@
 # Planned API contract
 
-Design only; no endpoints exist yet. Prefix all application routes with `/api/v1`. Sanctum CSRF initialization uses `/sanctum/csrf-cookie`. Cookie credentials and CSRF header are required for browser mutations; use a same-origin dev proxy. Production uses HTTPS, Secure/HttpOnly session cookies and SameSite=Lax; no wildcard credentialed CORS.
+Phase 1 implements POST /auth/login, POST /auth/logout, GET /auth/me, GET /stores, GET /stores/{id}, and GET /users (admin only). Other routes below remain planned. Prefix all application routes with `/api/v1`. Sanctum CSRF initialization uses `/sanctum/csrf-cookie`. Cookie credentials and CSRF header are required for browser mutations; use a same-origin dev proxy. Production uses HTTPS, Secure/HttpOnly session cookies and SameSite=Lax; no wildcard credentialed CORS.
 
 | Area | Routes |
 | --- | --- |

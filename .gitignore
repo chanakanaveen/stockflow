@@ -43,3 +43,6 @@ backend/storage/app/public/*
 .vscode/
 .DS_Store
 Thumbs.db
+
+# Isolated local runtimes and credentials
+.local/
