@@ -3,9 +3,12 @@
 use App\Enums\DocumentType;
 use App\Exceptions\InventoryException;
 use App\Models\StockDocument;
+use App\Models\StockTransfer;
 use App\Models\User;
 use App\Services\Inventory\DocumentWriter;
 use App\Services\Inventory\PostingService;
+use App\Services\Inventory\TransferPostingService;
+use App\Services\Inventory\TransferWriter;
 use Illuminate\Contracts\Console\Kernel;
 
 require __DIR__.'/../../vendor/autoload.php';
@@ -26,7 +29,13 @@ while (! file_exists(dirname($jobPath).'/go')) {
     usleep(10000);
 }
 try {
-    if ($job['action'] === 'draft') {
+    if ($job['action'] === 'approve') {
+        $result = app(TransferPostingService::class)->approve($actor, StockTransfer::findOrFail($job['transfer']), $job['key']);
+    } elseif ($job['action'] === 'reject') {
+        $result = ['status' => app(TransferWriter::class)->reject($actor, StockTransfer::findOrFail($job['transfer']), 'Concurrent rejection')->status->value];
+    } elseif ($job['action'] === 'transfer-draft') {
+        $result = ['number' => app(TransferWriter::class)->create($actor, $job['data'])->number];
+    } elseif ($job['action'] === 'draft') {
         $document = app(DocumentWriter::class)->create($actor, DocumentType::Receipt, $job['data']);
         $result = ['number' => $document->number];
     } else {

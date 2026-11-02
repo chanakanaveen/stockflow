@@ -1,6 +1,6 @@
 # Normalized database design
 
-Design only; no migrations have run. Use unsigned bigint primary keys, UTC timestamps and InnoDB. Foreign keys restrict historical deletion; deactivate users, stores, categories and products instead. Quantities are DECIMAL(18,4). Use PHP backed enums plus database CHECK constraints for finite states.
+This design is implemented through the Phase 1–3 migrations; see the phase verification reports for executed migration evidence. Tables use unsigned bigint primary keys, UTC timestamps and InnoDB. Foreign keys restrict historical deletion; deactivate users, stores, categories and products instead. Quantities are DECIMAL(18,4). PHP backed enums and database CHECK constraints enforce finite states.
 
 | Table | Fields and constraints |
 | --- | --- |

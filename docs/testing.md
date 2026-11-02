@@ -1,6 +1,6 @@
 # Verification plan and current evidence
 
-Backend and frontend checks are available. See the [Phase 1 report](phase1-verification.md) and [Phase 2 report](phase2-verification.md) for actual results, commands and platform limitations. The matrix below also describes later-phase tests that are not implemented yet.
+Backend and frontend checks are available. See the [Phase 1 report](phase1-verification.md), [Phase 2 report](phase2-verification.md) and [Phase 3 report](phase3-verification.md) for actual results, commands and platform limitations. The matrix below also describes later-phase tests that are not implemented yet.
 
 ## Planned checks by layer
 

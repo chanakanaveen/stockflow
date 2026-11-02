@@ -5,15 +5,12 @@ namespace App\Services\Inventory;
 use App\Enums\DocumentStatus;
 use App\Enums\DocumentType;
 use App\Exceptions\InventoryException;
-use App\Models\Product;
 use App\Models\StockDocument;
-use App\Models\Store;
 use App\Models\User;
 use App\Services\AuditLogger;
 use App\Support\Quantity;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
-use Illuminate\Validation\ValidationException;
 
 class DocumentWriter
 {
@@ -79,30 +76,7 @@ class DocumentWriter
      */
     public function validateStock(User $actor, int $storeId, array $lines): void
     {
-        $store = Store::query()->sharedLock()->findOrFail($storeId);
-        abort_unless($actor->canAccessStore($store), 404);
-        if (! $store->is_active) {
-            throw new InventoryException('INACTIVE_STORE', 'The store is inactive.', 422);
-        }
-        if (count($lines) < 1 || count($lines) > 100) {
-            throw ValidationException::withMessages(['lines' => ['Provide between 1 and 100 lines.']]);
-        }
-        $ids = array_map(fn ($line) => (int) $line['product_id'], $lines);
-        if (count(array_unique($ids)) !== count($ids)) {
-            throw ValidationException::withMessages(['lines' => ['Products must be unique within a document.']]);
-        }
-        sort($ids, SORT_NUMERIC);
-        foreach ($ids as $id) {
-            $product = Product::query()->sharedLock()->findOrFail($id);
-            if (! $product->is_active) {
-                throw new InventoryException('INACTIVE_PRODUCT', 'One or more products are inactive.', 422);
-            }
-        }
-        foreach ($lines as $line) {
-            if (! Quantity::valid($line['quantity'])) {
-                throw ValidationException::withMessages(['lines' => ['Line quantities must be positive decimal strings.']]);
-            }
-        }
+        app(StockValidator::class)->validate($actor, [$storeId], $lines);
     }
 
     /** @param list<array{product_id:int,quantity:string}> $lines */

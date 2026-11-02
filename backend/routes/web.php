@@ -5,6 +5,7 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\InventoryReadController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\StockDocumentController;
+use App\Http\Controllers\StockTransferController;
 use App\Http\Controllers\StoreController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
@@ -32,5 +33,13 @@ Route::prefix('api/v1')->group(function (): void {
             Route::post('inventory/'.$path.'/{document}/post', [StockDocumentController::class, 'post'])->defaults('kind', $kind)->middleware('throttle:posting');
         }
         Route::get('users', [UserController::class, 'index']);
+        Route::get('transfers', [StockTransferController::class, 'index']);
+        Route::post('transfers', [StockTransferController::class, 'store']);
+        Route::get('transfers/{transfer}', [StockTransferController::class, 'show']);
+        Route::patch('transfers/{transfer}', [StockTransferController::class, 'update']);
+        Route::post('transfers/{transfer}/submit', [StockTransferController::class, 'submit']);
+        Route::post('transfers/{transfer}/cancel', [StockTransferController::class, 'cancel']);
+        Route::post('transfers/{transfer}/reject', [StockTransferController::class, 'reject']);
+        Route::post('transfers/{transfer}/approve', [StockTransferController::class, 'approve'])->middleware('throttle:posting');
     });
 });

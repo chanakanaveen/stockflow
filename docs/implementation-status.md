@@ -15,7 +15,7 @@
 | 0 — Discovery and design | Completed; accepted through Phase 1 authorization | Documentation checks passed |
 | 1 — Foundation and identity | Implemented and verified with approved native-MySQL exception | 16 backend tests / 60 assertions; 3 frontend tests; typecheck, lint, build, static analysis and HTTP smoke passed |
 | 2 — Masters and inventory core | Implemented and verified with approved native-MySQL exception | 42 backend tests / 227 assertions including concurrent MySQL processes; static analysis, formatting, Composer validation and reconciliation passed |
-| 3 — Transfers and approvals | Pending | Not run |
+| 3 — Transfers and approvals | Implemented and verified with approved native-MySQL exception | 56 backend tests / 406 assertions including eight new transfer races; static analysis, formatting, Composer, reconciliation and API route checks passed |
 | 4 — React dashboard | Pending | Not run |
 | 5 — Reporting and hardening | Pending | Not run |
 | 6 — Portfolio and release readiness | Pending | Not run |
@@ -48,3 +48,16 @@
 - Report and reproducible commands: [Phase 2 verification](phase2-verification.md).
 - Limitation: Docker/Compose and MySQL 8.4 were not run; the approved isolated native MySQL alternative was used. No frontend files changed and frontend checks were not repeated for this backend stage.
 - Pending: Phase 3 transfers/approvals, later dashboard, reporting and release work. Phase 3 has not started. Commit/push outcome is reported after publication.
+
+## Phase 3 — 2026-11-02
+
+- Authorized by the user's instruction to continue to the next step after Phase 2.
+- Completed: transfer drafts/editing/submission/cancellation/rejection, eligible approval inbox, both-store policies, creator/submitter approval prohibition including Admin, atomic two-sided posting, replay protection, transfer numbering, audit and reconciliation.
+- Added transfer tables and constraints through an additive migration; no existing stock data was rewritten. Receipt/issue and transfer paths share sorted store/product validation locks.
+- Full backend suite passed: 56 tests / 406 assertions in 421.44 seconds, including all Phase 1–2 regression tests. The initial transfer feature run passed 11 tests / 126 assertions; two additional role/database-constraint tests and the transfer Integration case passed in the full run.
+- Eight new independent-process MySQL scenarios passed: competing transfers, same-key double approval, two different approvers/keys, opposite-direction multi-product transfers, missing destination balance initialization, transfer versus issue, approval versus rejection, and concurrent transfer numbering. Existing six inventory concurrency scenarios also passed.
+- PHPStan level 5, uncached Pint verification, strict Composer validation, development reconciliation (all four mismatch counts zero), OpenAPI internal-reference checks and all eight documented-to-registered route comparisons passed. Markdown links, diff whitespace and local-secret/excluded-path review passed.
+- Static analysis initially could not infer migration columns created through loops; explicit column declarations resolved the issue without changing the resulting schema. No failing required checks remain.
+- Documentation: [Phase 3 verification](phase3-verification.md), [transfer OpenAPI](openapi-transfers.json). No dependency versions changed.
+- Limitation: validation used the approved isolated native MySQL 9.1 instance. Docker/Compose and MySQL 8.4 remain unverified. No frontend files changed or frontend checks repeated.
+- Pending: Phase 4 React inventory dashboard, Phase 5 reports/hardening and Phase 6 release work. Phase 4 has not started. Commit/push outcome and clean-tree/remote agreement are reported after publication.

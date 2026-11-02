@@ -25,6 +25,18 @@ class Reconciliation
             LEFT JOIN stock_documents d ON d.id=n.document_id
             WHERE l.source_type='document' AND (d.id IS NULL OR d.status<>'posted' OR l.source_id<>d.id)");
 
-        return ['balance_mismatches' => $balances, 'document_mismatches' => $documents, 'invalid_sources' => $invalid];
+        $transfers = DB::select("SELECT t.id AS transfer_id, n.id AS line_id FROM stock_transfer_lines n JOIN stock_transfers t ON t.id=n.transfer_id
+            LEFT JOIN stock_ledger_entries l ON l.source_type='transfer' AND l.source_line_id=n.id
+            WHERE t.status='approved_posted' GROUP BY t.id,n.id,n.quantity,t.from_store_id,t.to_store_id,n.product_id
+            HAVING COUNT(l.id) <> 2 OR COALESCE(SUM(l.quantity_delta),0) <> 0
+            OR SUM(l.movement_type='transfer_out') <> 1 OR SUM(l.movement_type='transfer_in') <> 1
+            OR MAX(l.source_id<>t.id OR l.product_id<>n.product_id
+                OR (l.movement_type='transfer_out' AND (l.store_id<>t.from_store_id OR l.quantity_delta<>-n.quantity))
+                OR (l.movement_type='transfer_in' AND (l.store_id<>t.to_store_id OR l.quantity_delta<>n.quantity)))=1");
+        $invalidTransfers = DB::select("SELECT l.id FROM stock_ledger_entries l LEFT JOIN stock_transfer_lines n ON n.id=l.source_line_id
+            LEFT JOIN stock_transfers t ON t.id=n.transfer_id
+            WHERE l.source_type='transfer' AND (t.id IS NULL OR t.status<>'approved_posted' OR l.source_id<>t.id)");
+
+        return ['balance_mismatches' => $balances, 'document_mismatches' => $documents, 'transfer_mismatches' => $transfers, 'invalid_sources' => array_merge($invalid, $invalidTransfers)];
     }
 }

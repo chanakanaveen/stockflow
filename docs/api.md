@@ -1,6 +1,6 @@
-# Planned API contract
+# API contract and remaining plans
 
-Phase 1 implements POST /auth/login, POST /auth/logout, GET /auth/me, GET /stores, GET /stores/{id}, and GET /users (admin only). Other routes below remain planned. Prefix all application routes with `/api/v1`. Sanctum CSRF initialization uses `/sanctum/csrf-cookie`. Cookie credentials and CSRF header are required for browser mutations; use a same-origin dev proxy. Production uses HTTPS, Secure/HttpOnly session cookies and SameSite=Lax; no wildcard credentialed CORS.
+Phases 1–3 implement authentication, store reads, admin user listing, master management, receipt/issue posting, inventory reads and transfers. See the [Phase 2 report](phase2-verification.md) and [Phase 3 report](phase3-verification.md) for exact behavior, and the [transfer OpenAPI contract](openapi-transfers.json). User mutations, role listing, reports/dashboard and audit viewer routes below remain planned. Prefix all application routes with `/api/v1`. Sanctum CSRF initialization uses `/sanctum/csrf-cookie`. Cookie credentials and CSRF header are required for browser mutations; use a same-origin dev proxy. Production uses HTTPS, Secure/HttpOnly session cookies and SameSite=Lax; no wildcard credentialed CORS.
 
 | Area | Routes |
 | --- | --- |

@@ -8,7 +8,9 @@ Implemented foundation:
 - Server-enforced store scope and an admin-only user listing.
 - Opt-in fictional demo accounts, isolated MySQL tests and a local Compose configuration.
 
-Phase 2 adds category/product/store management, receipt/issue drafts, transactional posting, exact decimal balances, an immutable ledger, idempotent retries, audit records and reconciliation. See the [Phase 2 report](docs/phase2-verification.md) for APIs, commands and verification. Transfers, reports and the full inventory dashboard remain planned for later phases.
+Phase 2 adds category/product/store management, receipt/issue drafts, transactional posting, exact decimal balances, an immutable ledger, idempotent retries, audit records and reconciliation. See the [Phase 2 report](docs/phase2-verification.md) for APIs, commands and verification.
+
+Phase 3 adds transfers with submission, eligible approvals, rejection, cancellation and atomic movement between stores. Creators and submitters cannot approve their own transfers, including admins. See the [Phase 3 report](docs/phase3-verification.md) and [transfer OpenAPI contract](docs/openapi-transfers.json). Reports and the full inventory dashboard remain planned for later phases.
 
 Start with [local setup](docs/setup.md). See [implementation status](docs/implementation-status.md) and [verification](docs/testing.md) for actual check results and limitations. Docker execution has not been verified on this host; native MySQL validation was explicitly approved as the Phase 1 alternative.
 

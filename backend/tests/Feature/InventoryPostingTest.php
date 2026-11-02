@@ -45,7 +45,7 @@ class InventoryPostingTest extends TestCase
         $this->assertDatabaseHas('stock_balances', ['quantity' => '0.1000']);
         $this->assertDatabaseHas('stock_ledger_entries', ['actor_id' => $this->manager->id, 'source_id' => $id, 'quantity_delta' => '0.1000']);
         $this->assertDatabaseHas('audit_logs', ['action' => 'receipt.posted', 'actor_id' => $this->manager->id]);
-        $this->assertSame(['balance_mismatches' => [], 'document_mismatches' => [], 'invalid_sources' => []], app(Reconciliation::class)->inspect());
+        $this->assertSame(['balance_mismatches' => [], 'document_mismatches' => [], 'transfer_mismatches' => [], 'invalid_sources' => []], app(Reconciliation::class)->inspect());
     }
 
     public function test_multi_line_issue_preserves_exact_precision(): void
