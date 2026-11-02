@@ -1,6 +1,6 @@
 # StockFlow
 
-StockFlow is a multi-store inventory management project. Phase 1 provides a Laravel API and React interface for secure sign-in, role-based access, and assigned-store visibility.
+StockFlow is a multi-store inventory management project. Its Laravel API supports secure sign-in, role-based store access, inventory masters, and atomic receipt/issue posting. The React interface currently provides sign-in and assigned-store visibility.
 
 Implemented foundation:
 - Cookie-based login, session inspection and logout, with CSRF protection.
@@ -8,7 +8,7 @@ Implemented foundation:
 - Server-enforced store scope and an admin-only user listing.
 - Opt-in fictional demo accounts, isolated MySQL tests and a local Compose configuration.
 
-Stock receipts, issues, transfers, ledger posting, reports and the full dashboard are planned for later phases.
+Phase 2 adds category/product/store management, receipt/issue drafts, transactional posting, exact decimal balances, an immutable ledger, idempotent retries, audit records and reconciliation. See the [Phase 2 report](docs/phase2-verification.md) for APIs, commands and verification. Transfers, reports and the full inventory dashboard remain planned for later phases.
 
 Start with [local setup](docs/setup.md). See [implementation status](docs/implementation-status.md) and [verification](docs/testing.md) for actual check results and limitations. Docker execution has not been verified on this host; native MySQL validation was explicitly approved as the Phase 1 alternative.
 

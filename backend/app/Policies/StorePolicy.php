@@ -8,6 +8,16 @@ use Illuminate\Auth\Access\Response;
 
 class StorePolicy
 {
+    public function create(User $user): bool
+    {
+        return $user->is_active && $user->can('stores.create');
+    }
+
+    public function update(User $user, Store $store): bool
+    {
+        return $user->canAccessStore($store) && $user->can('stores.update');
+    }
+
     public function viewAny(User $user): bool
     {
         return $user->is_active && $user->can('stores.view');

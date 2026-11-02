@@ -14,7 +14,7 @@
 | --- | --- | --- |
 | 0 — Discovery and design | Completed; accepted through Phase 1 authorization | Documentation checks passed |
 | 1 — Foundation and identity | Implemented and verified with approved native-MySQL exception | 16 backend tests / 60 assertions; 3 frontend tests; typecheck, lint, build, static analysis and HTTP smoke passed |
-| 2 — Masters and inventory core | Pending | Not run |
+| 2 — Masters and inventory core | Implemented and verified with approved native-MySQL exception | 42 backend tests / 227 assertions including concurrent MySQL processes; static analysis, formatting, Composer validation and reconciliation passed |
 | 3 — Transfers and approvals | Pending | Not run |
 | 4 — React dashboard | Pending | Not run |
 | 5 — Reporting and hardening | Pending | Not run |
@@ -36,3 +36,15 @@
 - Native MySQL validation was explicitly approved because Docker is unavailable. Compose was statically checked but not built or booted. Browser visual inspection timed out; frontend component tests/build passed.
 - Phase 2 remains pending and requires separate authorization. No stock posting code was added.
 - Commit/push and final repository status are reported after publication; no future push outcome is assumed here.
+
+## Phase 2 — 2026-11-02
+
+- Authorized by the user's instruction to continue to the next step after Phase 1.
+- Completed: category/product/store masters, receipt/issue drafts and posting, exact decimal balances, append-only application ledger, locked numbering, idempotent retries, safe audit metadata, scoped read APIs and read-only reconciliation.
+- Verification: 42 backend tests / 227 assertions passed in 197.26 seconds on isolated native MySQL 9.1. Six two-process concurrency scenarios covered competing issues, absent balance rows, same-key replay, different-key duplicate posting, number allocation and reversed product input order. Rollback fault injection, decimal boundaries, permissions, master constraints, inactive stock, state transitions and reconciliation tests passed.
+- PHPStan level 5, uncached Pint check, strict Composer validation and development-database reconciliation passed. Composer reported no security vulnerability advisories; dependency versions are unchanged. Additive development migration succeeded; fresh test migrations succeeded.
+- Initial checks found and corrected a reserved-word SQL quoting error, model-cast analysis configuration, an optional date-filter validation error and a JSON property-order test assumption. No failing required checks remain.
+- Local secret/path review found no excluded files or known local secret values among the stage files. Staged review and final publication checks are reported after the commit.
+- Report and reproducible commands: [Phase 2 verification](phase2-verification.md).
+- Limitation: Docker/Compose and MySQL 8.4 were not run; the approved isolated native MySQL alternative was used. No frontend files changed and frontend checks were not repeated for this backend stage.
+- Pending: Phase 3 transfers/approvals, later dashboard, reporting and release work. Phase 3 has not started. Commit/push outcome is reported after publication.

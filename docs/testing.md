@@ -1,6 +1,6 @@
 # Verification plan and current evidence
 
-Phase 1 now has working backend and frontend checks. See the [executed Phase 1 report](phase1-verification.md) for results, exact commands and platform limitations. The matrix below also describes later-phase tests that are not implemented yet.
+Backend and frontend checks are available. See the [Phase 1 report](phase1-verification.md) and [Phase 2 report](phase2-verification.md) for actual results, commands and platform limitations. The matrix below also describes later-phase tests that are not implemented yet.
 
 ## Planned checks by layer
 
@@ -15,7 +15,7 @@ Phase 1 now has working backend and frontend checks. See the [executed Phase 1 r
 
 ## Check interfaces
 
-Backend working directory: `backend/`. Plan `php artisan test`, `php artisan test --testsuite=Integration`, `vendor/bin/pint --test` and `vendor/bin/phpstan analyse`. Frontend working directory: `frontend/`. Plan `npm run typecheck`, `npm run lint`, `npm run test -- --run`, `npm run build`, and `npx playwright test` after E2E setup. Phase 1 implements the main backend/frontend commands. The separate Integration suite and Playwright tests remain planned for later phases. On this Windows host, use the single-process PHPStan command in the Phase 1 report.
+Backend working directory: `backend/`. Run `php artisan test`, `php artisan test --testsuite=Integration`, `vendor/bin/pint --test` and `vendor/bin/phpstan analyse`. The Phase 2 Integration suite exercises independent MySQL connections with committed fixtures and a synchronization barrier. Run database suites serially, never concurrently against the same test database. Frontend working directory: `frontend/`. Run `npm run typecheck`, `npm run lint`, `npm run test -- --run`, and `npm run build`. Playwright E2E coverage remains planned for the dashboard phase. On this Windows host, use the single-process PHPStan command in the Phase 1 report.
 
 Use an explicitly isolated MySQL test database with restricted credentials and a test-only database-name guard before any reset. Never point test migration/reset helpers at a developer or production database. CI provisions its own MySQL service. SQLite may support pure tests but cannot establish locking correctness.
 

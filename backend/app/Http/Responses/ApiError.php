@@ -12,6 +12,9 @@ class ApiError
         if (! request()->is('api/*')) {
             return $response;
         }
+        if ($response instanceof JsonResponse && isset($response->getData(true)['error']['code'])) {
+            return $response;
+        }
         $status = $response->getStatusCode();
         [$code, $message] = match ($status) {
             401 => ['UNAUTHENTICATED', 'Please sign in to continue.'],

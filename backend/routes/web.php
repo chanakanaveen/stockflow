@@ -1,6 +1,10 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\InventoryReadController;
+use App\Http\Controllers\ProductController;
+use App\Http\Controllers\StockDocumentController;
 use App\Http\Controllers\StoreController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
@@ -13,6 +17,20 @@ Route::prefix('api/v1')->group(function (): void {
         Route::post('auth/logout', [AuthController::class, 'logout']);
         Route::get('stores', [StoreController::class, 'index']);
         Route::get('stores/{store}', [StoreController::class, 'show']);
+        Route::post('stores', [StoreController::class, 'store']);
+        Route::patch('stores/{store}', [StoreController::class, 'update']);
+        Route::apiResource('categories', CategoryController::class)->except('destroy');
+        Route::apiResource('products', ProductController::class)->except('destroy');
+        Route::get('inventory/balances', [InventoryReadController::class, 'balances']);
+        Route::get('inventory/ledger', [InventoryReadController::class, 'ledger']);
+        foreach (['receipts' => 'receipt', 'issues' => 'issue'] as $path => $kind) {
+            Route::get('inventory/'.$path, [StockDocumentController::class, 'index'])->defaults('kind', $kind);
+            Route::post('inventory/'.$path, [StockDocumentController::class, 'store'])->defaults('kind', $kind);
+            Route::get('inventory/'.$path.'/{document}', [StockDocumentController::class, 'show'])->defaults('kind', $kind);
+            Route::patch('inventory/'.$path.'/{document}', [StockDocumentController::class, 'update'])->defaults('kind', $kind);
+            Route::post('inventory/'.$path.'/{document}/cancel', [StockDocumentController::class, 'cancel'])->defaults('kind', $kind);
+            Route::post('inventory/'.$path.'/{document}/post', [StockDocumentController::class, 'post'])->defaults('kind', $kind)->middleware('throttle:posting');
+        }
         Route::get('users', [UserController::class, 'index']);
     });
 });
