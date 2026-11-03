@@ -17,7 +17,7 @@
 | 2 — Masters and inventory core | Implemented and verified with approved native-MySQL exception | 42 backend tests / 227 assertions including concurrent MySQL processes; static analysis, formatting, Composer validation and reconciliation passed |
 | 3 — Transfers and approvals | Implemented and verified with approved native-MySQL exception | 56 backend tests / 406 assertions including eight new transfer races; static analysis, formatting, Composer, reconciliation and API route checks passed |
 | 4 — React dashboard | Implemented and verified with approved native-MySQL exception | 16 UI tests, 2 real-browser scenarios, backend regression checks, typecheck/lint/build and static analysis passed |
-| 5 — Reporting and hardening | Locally verified; GitHub CI pending | 62 backend tests / 476 assertions; 18 UI tests; 3 browser scenarios; query/static/build checks passed |
+| 5 — Reporting and hardening | Implemented and verified locally and in GitHub CI | 62 backend tests / 476 assertions; 18 UI tests; 3 browser scenarios; MySQL 8.4 CI, query/static/build checks passed |
 | 6 — Portfolio and release readiness | Pending | Not run |
 
 ## Phase 4 — 2026-11-03
@@ -75,5 +75,8 @@
 
 - Authorized by the user after Phase 4. Phase 4 was committed as aaad84f and pushed after preserving remote CI work in merge 9979729; remote/local main agreed and the tree was clean.
 - Implemented scoped stock/low-stock/movement reports, low-stock dashboard attention, bounded CSV export, audit viewer, production cookie defaults, response headers, complete OpenAPI and corrected GitHub CI.
-- Full backend suite: 62 tests / 476 assertions passed (487.00 seconds). All four new report/audit tests passed. Final export tests passed (4 / 52 assertions), as did 18 UI tests across two runs, all three browser scenarios, final lint/build/static checks, dependency audits for production, API route coverage, visual review and reconciliation. Query medians and plans are recorded in the Phase 5 report. GitHub CI is pending publication; full CI verification is not claimed yet.
+- Full backend suite: 62 tests / 476 assertions passed (487.00 seconds). All four new report/audit tests passed. Final export tests passed (4 / 52 assertions), as did 18 UI tests across two runs, all three browser scenarios, final lint/build/static checks, dependency audits for production, API route coverage, visual review and reconciliation. Query medians and plans are recorded in the Phase 5 report. GitHub Actions run 41613736051 passed every gate on Linux/MySQL 8.4 after correcting a browser filter-readiness race. No failing required checks remain.
 - See [Phase 5 report](phase5-verification.md) for exact scope, results and limits. No schema migration; Phase 6 is not started.
+
+- Phase 5 publication: feature commit f3698da and browser-check correction 8cc6964 were pushed to origin/main. The [successful CI run](https://github.com/chanakanaveen/stockflow/actions/runs/41613736051) verifies that code. This documentation follow-up records the result; final local/remote agreement is checked after its push.
+- Remaining limits: 12 moderate development-tool advisories; full Docker Compose stack unexecuted. No deployment or Phase 6 implementation was performed.
