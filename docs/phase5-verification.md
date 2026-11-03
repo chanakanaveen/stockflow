@@ -59,3 +59,7 @@ Measured on isolated native MySQL 9.1.0 with 3 stores, 24 products, 72 balances 
 | Filtered ledger | 2 | 1.257 ms | Same composite range index; backward index scan, no filesort |
 
 No added index is justified by this small-fixture evidence. Missing-balance projection inherently examines store/product combinations; larger deployment cardinalities require representative load measurements. No production throughput, scaling guarantee or before/after speedup is claimed. The read-only measurement script and ignored .local/phase5-query-measurements.json contain reproducible SQL plan evidence.
+
+## GitHub verification follow-up
+
+The first [Linux/MySQL 8.4 run](https://github.com/chanakanaveen/stockflow/actions/runs/41613143329) passed backend checks (62 tests) and frontend checks (18 tests), then exposed a timing race in the pre-existing balance browser assertion: it read the 24 unfiltered store rows before the product filter settled. The test now waits for the expected three balance rows and five ledger rows before checking values. Full CI acceptance remains pending the rerun; no application behavior changed for this correction.

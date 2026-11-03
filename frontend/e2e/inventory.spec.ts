@@ -49,6 +49,7 @@ test('real two-user transfer, balance conservation, ledger and mobile access', a
   await expect(page.getByRole('button', { name: 'Approve & post' })).toHaveCount(0)
   await page.getByRole('navigation').getByRole('link', { name: 'Stock balances' }).click()
   await page.getByLabel('Product filter').selectOption({ label: 'SF-001 · Desk notebook' })
+  await expect(page.locator('tbody tr')).toHaveCount(3)
   await expect(page.getByRole('row').filter({ hasText: 'Main Warehouse' })).toContainText('80.0000')
   await expect(page.getByRole('row').filter({ hasText: 'Downtown Branch' })).toContainText(
     '50.0000',
@@ -60,6 +61,7 @@ test('real two-user transfer, balance conservation, ledger and mobile access', a
   await expect(page).toHaveURL(/\/ledger/)
   await expect(page.getByRole('heading', { name: 'Stock ledger', exact: true })).toBeVisible()
   await page.getByLabel('Product filter').selectOption({ label: 'SF-001 · Desk notebook' })
+  await expect(page.locator('tbody tr')).toHaveCount(5)
   await expect(page.getByRole('row').filter({ hasText: 'transfer out' })).toContainText('-20.0000')
   await expect(page.getByRole('row').filter({ hasText: 'transfer in' })).toContainText('20.0000')
   await page.screenshot({ path: '../.local/phase4-ledger-desktop.png', fullPage: true })
