@@ -98,3 +98,7 @@ node --env-file=backend/.env scripts/smoke-auth.mjs
 ```
 
 To check the frontend proxy too, set SMOKE_BASE_URL=http://127.0.0.1:5173 for that command. The script signs out both demo sessions after its checks. See [verification results](phase1-verification.md). On Windows with the supplied WAMP/Xdebug runtime, use the documented single-process PHPStan invocation if parallel workers fail.
+
+## Reports and audit
+
+Open Reports for current stock (including zero balances), low-stock positions and movement totals. CSV requires both UTC dates and export permission. Admin/Auditor users can open Audit history; store scoping still applies. See [Phase 5 verification](phase5-verification.md) for exact limits and security checks.

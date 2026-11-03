@@ -18,6 +18,8 @@ class RequestContext
         $response = $next($request);
         $response->headers->set('X-Request-ID', $request->attributes->get('request_id'));
         $response->headers->set('X-Content-Type-Options', 'nosniff');
+        $response->headers->set('Referrer-Policy', 'same-origin');
+        $response->headers->set('X-Frame-Options', 'DENY');
         if ($request->is('api/*')) {
             $response->headers->set('Cache-Control', 'no-store, private');
         }

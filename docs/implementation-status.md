@@ -17,7 +17,7 @@
 | 2 — Masters and inventory core | Implemented and verified with approved native-MySQL exception | 42 backend tests / 227 assertions including concurrent MySQL processes; static analysis, formatting, Composer validation and reconciliation passed |
 | 3 — Transfers and approvals | Implemented and verified with approved native-MySQL exception | 56 backend tests / 406 assertions including eight new transfer races; static analysis, formatting, Composer, reconciliation and API route checks passed |
 | 4 — React dashboard | Implemented and verified with approved native-MySQL exception | 16 UI tests, 2 real-browser scenarios, backend regression checks, typecheck/lint/build and static analysis passed |
-| 5 — Reporting and hardening | Pending | Not run |
+| 5 — Reporting and hardening | Locally verified; GitHub CI pending | 62 backend tests / 476 assertions; 18 UI tests; 3 browser scenarios; query/static/build checks passed |
 | 6 — Portfolio and release readiness | Pending | Not run |
 
 ## Phase 4 — 2026-11-03
@@ -70,3 +70,10 @@
 - Documentation: [Phase 3 verification](phase3-verification.md), [transfer OpenAPI](openapi-transfers.json). No dependency versions changed.
 - Limitation: validation used the approved isolated native MySQL 9.1 instance. Docker/Compose and MySQL 8.4 remain unverified. No frontend files changed or frontend checks repeated.
 - Pending: Phase 4 React inventory dashboard, Phase 5 reports/hardening and Phase 6 release work. Phase 4 has not started. Commit/push outcome and clean-tree/remote agreement are reported after publication.
+
+## Phase 5 — 2026-11-03
+
+- Authorized by the user after Phase 4. Phase 4 was committed as aaad84f and pushed after preserving remote CI work in merge 9979729; remote/local main agreed and the tree was clean.
+- Implemented scoped stock/low-stock/movement reports, low-stock dashboard attention, bounded CSV export, audit viewer, production cookie defaults, response headers, complete OpenAPI and corrected GitHub CI.
+- Full backend suite: 62 tests / 476 assertions passed (487.00 seconds). All four new report/audit tests passed. Final export tests passed (4 / 52 assertions), as did 18 UI tests across two runs, all three browser scenarios, final lint/build/static checks, dependency audits for production, API route coverage, visual review and reconciliation. Query medians and plans are recorded in the Phase 5 report. GitHub CI is pending publication; full CI verification is not claimed yet.
+- See [Phase 5 report](phase5-verification.md) for exact scope, results and limits. No schema migration; Phase 6 is not started.

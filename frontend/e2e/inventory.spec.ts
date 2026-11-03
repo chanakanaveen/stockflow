@@ -1,5 +1,6 @@
 import { expect, test } from '@playwright/test'
 import type { Page } from '@playwright/test'
+import { readFile } from 'node:fs/promises'
 async function login(page: Page, account: string) {
   await page.goto('/')
   await page.getByLabel('Email address').fill(account + '@e2e.stockflow.test')
@@ -118,4 +119,51 @@ test('admin master editing and role assignment, auditor restriction, insufficien
   await page.getByRole('button', { name: 'Confirm post' }).click()
   await expect(page.getByRole('alert')).toContainText('Insufficient stock')
   await expect(page.locator('.page-title .badge')).toHaveText('draft')
+})
+
+test('reports include low stock, safe CSV download, and scoped audit history', async ({ page }) => {
+  await login(page, 'auditor')
+  await page.getByRole('link', { name: 'Reports', exact: true }).click()
+  await expect(page.getByRole('heading', { name: 'Inventory reports' })).toBeVisible()
+  await expect(page.locator('.pagination')).toContainText('72 records')
+  await page.getByLabel('Report type').selectOption('low-stock')
+  await expect(page.locator('.pagination')).toContainText('24 records')
+  await expect(page.locator('tbody tr').first()).toContainText('Lakeside Branch')
+  await page.getByLabel('Report type').selectOption('movements')
+  await expect(page.getByRole('columnheader', { name: 'Incoming', exact: true })).toBeVisible()
+  await page.getByLabel('Product filter').selectOption({ label: 'SF-001 · Desk notebook' })
+  await expect(page.locator('tbody tr')).toHaveCount(3)
+  await expect(page.locator('tbody tr').filter({ hasText: 'Main Warehouse' })).toContainText(
+    '80.0000',
+  )
+  const today = new Date().toISOString().slice(0, 10)
+  await page.getByLabel('From date').fill(today)
+  await expect(page).toHaveURL(new RegExp('date_from=' + today))
+  await page.getByLabel('To date').fill(today)
+  await expect(page).toHaveURL(new RegExp('date_to=' + today))
+  const downloaded = page.waitForEvent('download')
+  await page.getByRole('button', { name: 'Export movements CSV' }).click()
+  const download = await downloaded
+  expect(download.suggestedFilename()).toBe('stockflow-movements.csv')
+  expect(await download.failure()).toBeNull()
+  const csv = await readFile((await download.path())!, 'utf8')
+  expect(csv).toContain('Quantity delta')
+  expect(csv).toContain('-20.0000')
+  expect(csv).not.toContain('Wireless mouse')
+  await expect(page.locator('.skeletons')).toHaveCount(0)
+  await page.screenshot({ path: '../.local/phase5-reports-desktop.png', fullPage: true })
+  await page.getByRole('link', { name: 'Audit history', exact: true }).click()
+  await expect(page.getByRole('heading', { name: 'Audit history' })).toBeVisible()
+  await expect(page.locator('tbody tr').first()).toBeVisible()
+  await expect(page.locator('tbody')).not.toContainText('user.updated')
+  await page.setViewportSize({ width: 390, height: 844 })
+  await expect
+    .poll(() => page.evaluate(() => document.documentElement.scrollWidth <= innerWidth))
+    .toBe(true)
+  await expect(page.locator('.sidebar')).not.toBeInViewport()
+  await page.screenshot({
+    path: '../.local/phase5-audit-mobile.png',
+    fullPage: true,
+    animations: 'disabled',
+  })
 })

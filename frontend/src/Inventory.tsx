@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { ReportSummary } from './Reports'
 import {
   ArrowDownLeft,
   ArrowUpRight,
@@ -84,6 +85,7 @@ export function Overview() {
           )
         }
       />
+      <ReportSummary />
       <div className="overview-banner">
         <div>
           <span className="eyebrow">YOUR OPERATIONS, CONNECTED</span>
@@ -227,8 +229,8 @@ export function Overview() {
               ),
           )}
           <div className="quiet-note">
-            Counts reflect your current access. Reporting trends and low-stock totals will be
-            available in a later release.
+            Counts reflect your current access. Open Reports for low-stock positions and exact
+            movement totals.
           </div>
         </aside>
       </div>
@@ -416,7 +418,7 @@ export function Inventory({ ledger = false }: { ledger?: boolean }) {
         {!ledger && (
           <div className="panel-footnote">
             Only recorded balances appear here. Products with no balance record have zero stock;
-            complete zero-stock reporting is planned for the reporting release.
+            open Reports for complete zero-stock reporting.
           </div>
         )}
       </section>

@@ -1176,3 +1176,35 @@ dialog > form > p {
     font-size: 11px;
   }
 }
+
+.report-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 22px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+.report-summary h3 {
+  margin: 0 0 8px;
+}
+.report-summary p {
+  margin: 0;
+  color: #687d73;
+}
+.audit-metadata {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  max-width: 420px;
+  font-size: 12px;
+}
+
+.table-note {
+  margin: 0;
+  padding: 16px 24px;
+  border-top: 1px solid #e2e9e5;
+  color: #687d73;
+  font-size: 12px;
+  line-height: 1.6;
+}

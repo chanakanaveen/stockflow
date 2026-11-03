@@ -26,6 +26,7 @@ import { Session } from './state'
 import { Empty, ErrorNotice, Loading } from './ui'
 import { Masters } from './Masters'
 import { Inventory, Overview } from './Inventory'
+import { Reports } from './Reports'
 import { Transactions, TransactionDetail } from './Transactions'
 import './App.css'
 const makeQueryClient = () =>
@@ -268,6 +269,8 @@ const nav = [
       { to: '/transfers', label: 'Transfers', icon: ArrowLeftRight, permission: 'transfers.view' },
       { to: '/approvals', label: 'Approvals', icon: CheckCheck, permission: 'transfers.approve' },
       { to: '/ledger', label: 'Stock ledger', icon: Activity, permission: 'inventory.view' },
+      { to: '/reports', label: 'Reports', icon: Activity, permission: 'reports.view' },
+      { to: '/audit', label: 'Audit history', icon: ShieldCheck, permission: 'audit.view' },
     ],
   },
   {
@@ -400,6 +403,8 @@ function Shell({
               <Route path="/approvals" element={<Transactions kind="transfers" inbox />} />
               <Route path="/balances" element={<Inventory />} />
               <Route path="/ledger" element={<Inventory ledger />} />
+              <Route path="/reports" element={<Reports />} />
+              <Route path="/audit" element={<Reports audit />} />
               <Route
                 path="*"
                 element={

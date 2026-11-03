@@ -1,0 +1,5581 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "StockFlow API",
+    "version": "0.5.0",
+    "description": "Implemented cookie-session API. Initialize CSRF first, send cookie credentials and X-XSRF-TOKEN on mutations. Store scopes apply before aggregation and pagination. Quantities are decimal strings; dates use UTC. No bearer tokens."
+  },
+  "servers": [
+    {
+      "url": "/api/v1"
+    }
+  ],
+  "security": [
+    {
+      "session": []
+    }
+  ],
+  "paths": {
+    "/transfers": {
+      "get": {
+        "operationId": "listTransfers",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "per_page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 25
+            }
+          },
+          {
+            "name": "from_store_id",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "to_store_id",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "draft",
+                "submitted",
+                "approved_posted",
+                "rejected",
+                "cancelled"
+              ]
+            }
+          },
+          {
+            "name": "approval_inbox",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "enum": [
+                0,
+                1
+              ]
+            },
+            "description": "Requires approval permission; only submitted transfers not created/submitted by this actor."
+          },
+          {
+            "name": "date_from",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            },
+            "description": "Inclusive UTC creation-date boundary; either may be supplied alone."
+          },
+          {
+            "name": "date_to",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            },
+            "description": "Inclusive UTC creation-date boundary; either may be supplied alone."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Paginated list scoped to both stores",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TransferListResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "419": {
+            "$ref": "#/components/responses/Error419"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error422"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        }
+      },
+      "post": {
+        "operationId": "createTransfer",
+        "parameters": [
+          {
+            "name": "X-XSRF-TOKEN",
+            "in": "header",
+            "required": true,
+            "description": "URL-decoded XSRF-TOKEN cookie from /sanctum/csrf-cookie.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TransferDraft"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Transfer resource",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TransferResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "419": {
+            "$ref": "#/components/responses/Error419"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error422"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        }
+      }
+    },
+    "/transfers/{transfer}": {
+      "parameters": [
+        {
+          "name": "transfer",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "integer",
+            "minimum": 1
+          }
+        }
+      ],
+      "get": {
+        "operationId": "getTransfer",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Transfer resource",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TransferResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "419": {
+            "$ref": "#/components/responses/Error419"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error422"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        }
+      },
+      "patch": {
+        "operationId": "updateTransfer",
+        "parameters": [
+          {
+            "name": "X-XSRF-TOKEN",
+            "in": "header",
+            "required": true,
+            "description": "URL-decoded XSRF-TOKEN cookie from /sanctum/csrf-cookie.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TransferPatch"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Transfer resource",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TransferResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "419": {
+            "$ref": "#/components/responses/Error419"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error422"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        }
+      }
+    },
+    "/transfers/{transfer}/submit": {
+      "parameters": [
+        {
+          "name": "transfer",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "integer",
+            "minimum": 1
+          }
+        }
+      ],
+      "post": {
+        "operationId": "submitTransfer",
+        "parameters": [
+          {
+            "name": "X-XSRF-TOKEN",
+            "in": "header",
+            "required": true,
+            "description": "URL-decoded XSRF-TOKEN cookie from /sanctum/csrf-cookie.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Transfer resource",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TransferResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "419": {
+            "$ref": "#/components/responses/Error419"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error422"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        },
+        "description": "Draft only; records submitter and time without stock movement."
+      }
+    },
+    "/transfers/{transfer}/cancel": {
+      "parameters": [
+        {
+          "name": "transfer",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "integer",
+            "minimum": 1
+          }
+        }
+      ],
+      "post": {
+        "operationId": "cancelTransfer",
+        "parameters": [
+          {
+            "name": "X-XSRF-TOKEN",
+            "in": "header",
+            "required": true,
+            "description": "URL-decoded XSRF-TOKEN cookie from /sanctum/csrf-cookie.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Transfer resource",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TransferResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "419": {
+            "$ref": "#/components/responses/Error419"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error422"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        },
+        "description": "Draft only; no stock movement."
+      }
+    },
+    "/transfers/{transfer}/reject": {
+      "parameters": [
+        {
+          "name": "transfer",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "integer",
+            "minimum": 1
+          }
+        }
+      ],
+      "post": {
+        "operationId": "rejectTransfer",
+        "parameters": [
+          {
+            "name": "X-XSRF-TOKEN",
+            "in": "header",
+            "required": true,
+            "description": "URL-decoded XSRF-TOKEN cookie from /sanctum/csrf-cookie.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "rejection_reason"
+                ],
+                "properties": {
+                  "rejection_reason": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 1000,
+                    "description": "Must not be whitespace-only."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Transfer resource",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TransferResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "419": {
+            "$ref": "#/components/responses/Error419"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error422"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        },
+        "description": "Submitted only; records reason and rejector without stock movement."
+      }
+    },
+    "/transfers/{transfer}/approve": {
+      "parameters": [
+        {
+          "name": "transfer",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "integer",
+            "minimum": 1
+          }
+        }
+      ],
+      "post": {
+        "operationId": "approveTransfer",
+        "parameters": [
+          {
+            "name": "X-XSRF-TOKEN",
+            "in": "header",
+            "required": true,
+            "description": "URL-decoded XSRF-TOKEN cookie from /sanctum/csrf-cookie.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128,
+              "pattern": "^[!-~][ -~]{0,127}$"
+            },
+            "description": "Case-sensitive actor/action/resource scope. Matching retries replay for seven days; changed payload returns 409."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "description": "Use an empty object; extra fields affect the idempotency hash, never saved transfer data."
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Transfer resource",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TransferResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "419": {
+            "$ref": "#/components/responses/Error419"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error422"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        },
+        "description": "Submitted only. Creator and submitter cannot approve, including Admin. Posts both sides atomically; failed attempts roll back."
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "operationId": "post_auth_login",
+        "description": "Rotate session on successful login. Throttled by normalized email/IP and IP.",
+        "parameters": [
+          {
+            "name": "X-XSRF-TOKEN",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "URL-decoded XSRF-TOKEN cookie value."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "403": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "404": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "409": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "419": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "422": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "429": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "500": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "503": {
+            "$ref": "#/components/responses/StandardError"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "maxLength": 255
+                  },
+                  "password": {
+                    "type": "string",
+                    "maxLength": 255
+                  }
+                },
+                "required": [
+                  "email",
+                  "password"
+                ]
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/auth/me": {
+      "get": {
+        "operationId": "get_auth_me",
+        "description": "",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "403": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "404": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "409": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "419": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "422": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "429": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "500": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "503": {
+            "$ref": "#/components/responses/StandardError"
+          }
+        }
+      }
+    },
+    "/auth/logout": {
+      "post": {
+        "operationId": "post_auth_logout",
+        "description": "",
+        "parameters": [
+          {
+            "name": "X-XSRF-TOKEN",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "URL-decoded XSRF-TOKEN cookie value."
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No content"
+          },
+          "401": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "403": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "404": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "409": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "419": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "422": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "429": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "500": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "503": {
+            "$ref": "#/components/responses/StandardError"
+          }
+        }
+      }
+    },
+    "/categories": {
+      "get": {
+        "operationId": "get_categories",
+        "description": "",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "per_page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 25
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "maxLength": 100
+            },
+            "required": false
+          },
+          {
+            "name": "is_active",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            },
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CategoryListResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "403": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "404": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "409": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "419": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "422": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "429": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "500": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "503": {
+            "$ref": "#/components/responses/StandardError"
+          }
+        }
+      },
+      "post": {
+        "operationId": "post_categories",
+        "description": "",
+        "parameters": [
+          {
+            "name": "X-XSRF-TOKEN",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "URL-decoded XSRF-TOKEN cookie value."
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CategoryResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "403": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "404": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "409": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "419": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "422": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "429": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "500": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "503": {
+            "$ref": "#/components/responses/StandardError"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "maxLength": 255
+                  },
+                  "is_active": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "name"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/categories/{category}": {
+      "get": {
+        "operationId": "get_categories__category_",
+        "description": "",
+        "parameters": [
+          {
+            "name": "category",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CategoryResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "403": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "404": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "409": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "419": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "422": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "429": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "500": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "503": {
+            "$ref": "#/components/responses/StandardError"
+          }
+        }
+      },
+      "patch": {
+        "operationId": "patch_categories__category_",
+        "description": "Admin only. Historical records are deactivated, never deleted.",
+        "parameters": [
+          {
+            "name": "category",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "X-XSRF-TOKEN",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "URL-decoded XSRF-TOKEN cookie value."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CategoryResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "403": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "404": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "409": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "419": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "422": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "429": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "500": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "503": {
+            "$ref": "#/components/responses/StandardError"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "maxLength": 255
+                  },
+                  "is_active": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "put_categories__category_",
+        "description": "Admin only. Historical records are deactivated, never deleted.",
+        "parameters": [
+          {
+            "name": "category",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "X-XSRF-TOKEN",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "URL-decoded XSRF-TOKEN cookie value."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CategoryResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "403": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "404": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "409": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "419": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "422": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "429": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "500": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "503": {
+            "$ref": "#/components/responses/StandardError"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "maxLength": 255
+                  },
+                  "is_active": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "name"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/products": {
+      "get": {
+        "operationId": "get_products",
+        "description": "",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "per_page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 25
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "maxLength": 100
+            },
+            "required": false
+          },
+          {
+            "name": "is_active",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            },
+            "required": false
+          },
+          {
+            "name": "category_id",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductListResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "403": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "404": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "409": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "419": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "422": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "429": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "500": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "503": {
+            "$ref": "#/components/responses/StandardError"
+          }
+        }
+      },
+      "post": {
+        "operationId": "post_products",
+        "description": "",
+        "parameters": [
+          {
+            "name": "X-XSRF-TOKEN",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "URL-decoded XSRF-TOKEN cookie value."
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "403": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "404": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "409": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "419": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "422": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "429": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "500": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "503": {
+            "$ref": "#/components/responses/StandardError"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "sku": {
+                    "type": "string",
+                    "maxLength": 64,
+                    "pattern": "^[A-Z0-9][A-Z0-9._-]*$"
+                  },
+                  "name": {
+                    "type": "string",
+                    "maxLength": 255
+                  },
+                  "category_id": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "base_uom": {
+                    "type": "string",
+                    "maxLength": 32
+                  },
+                  "reorder_level": {
+                    "type": "string",
+                    "pattern": "^[0-9]{1,14}(\\.[0-9]{1,4})?$"
+                  },
+                  "is_active": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "sku",
+                  "name",
+                  "category_id",
+                  "base_uom"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/products/{product}": {
+      "get": {
+        "operationId": "get_products__product_",
+        "description": "",
+        "parameters": [
+          {
+            "name": "product",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "403": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "404": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "409": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "419": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "422": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "429": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "500": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "503": {
+            "$ref": "#/components/responses/StandardError"
+          }
+        }
+      },
+      "patch": {
+        "operationId": "patch_products__product_",
+        "description": "Admin only. Historical records are deactivated, never deleted.",
+        "parameters": [
+          {
+            "name": "product",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "X-XSRF-TOKEN",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "URL-decoded XSRF-TOKEN cookie value."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "403": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "404": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "409": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "419": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "422": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "429": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "500": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "503": {
+            "$ref": "#/components/responses/StandardError"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "sku": {
+                    "type": "string",
+                    "maxLength": 64,
+                    "pattern": "^[A-Z0-9][A-Z0-9._-]*$"
+                  },
+                  "name": {
+                    "type": "string",
+                    "maxLength": 255
+                  },
+                  "category_id": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "base_uom": {
+                    "type": "string",
+                    "maxLength": 32
+                  },
+                  "reorder_level": {
+                    "type": "string",
+                    "pattern": "^[0-9]{1,14}(\\.[0-9]{1,4})?$"
+                  },
+                  "is_active": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "put_products__product_",
+        "description": "Admin only. Historical records are deactivated, never deleted.",
+        "parameters": [
+          {
+            "name": "product",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "X-XSRF-TOKEN",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "URL-decoded XSRF-TOKEN cookie value."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "403": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "404": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "409": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "419": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "422": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "429": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "500": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "503": {
+            "$ref": "#/components/responses/StandardError"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "sku": {
+                    "type": "string",
+                    "maxLength": 64,
+                    "pattern": "^[A-Z0-9][A-Z0-9._-]*$"
+                  },
+                  "name": {
+                    "type": "string",
+                    "maxLength": 255
+                  },
+                  "category_id": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "base_uom": {
+                    "type": "string",
+                    "maxLength": 32
+                  },
+                  "reorder_level": {
+                    "type": "string",
+                    "pattern": "^[0-9]{1,14}(\\.[0-9]{1,4})?$"
+                  },
+                  "is_active": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "sku",
+                  "name",
+                  "category_id",
+                  "base_uom"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/stores": {
+      "get": {
+        "operationId": "get_stores",
+        "description": "",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "per_page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 25
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StoreListResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "403": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "404": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "409": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "419": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "422": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "429": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "500": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "503": {
+            "$ref": "#/components/responses/StandardError"
+          }
+        }
+      },
+      "post": {
+        "operationId": "post_stores",
+        "description": "",
+        "parameters": [
+          {
+            "name": "X-XSRF-TOKEN",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "URL-decoded XSRF-TOKEN cookie value."
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StoreResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "403": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "404": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "409": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "419": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "422": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "429": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "500": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "503": {
+            "$ref": "#/components/responses/StandardError"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "code": {
+                    "type": "string",
+                    "maxLength": 32,
+                    "pattern": "^[A-Z0-9][A-Z0-9._-]*$"
+                  },
+                  "name": {
+                    "type": "string",
+                    "maxLength": 255
+                  },
+                  "location_label": {
+                    "type": "string",
+                    "maxLength": 255,
+                    "nullable": true
+                  },
+                  "is_active": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "code",
+                  "name"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/stores/{store}": {
+      "get": {
+        "operationId": "get_stores__store_",
+        "description": "",
+        "parameters": [
+          {
+            "name": "store",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StoreResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "403": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "404": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "409": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "419": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "422": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "429": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "500": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "503": {
+            "$ref": "#/components/responses/StandardError"
+          }
+        }
+      },
+      "patch": {
+        "operationId": "patch_stores__store_",
+        "description": "Admin only. Historical records are deactivated, never deleted.",
+        "parameters": [
+          {
+            "name": "store",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "X-XSRF-TOKEN",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "URL-decoded XSRF-TOKEN cookie value."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StoreResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "403": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "404": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "409": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "419": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "422": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "429": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "500": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "503": {
+            "$ref": "#/components/responses/StandardError"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "code": {
+                    "type": "string",
+                    "maxLength": 32,
+                    "pattern": "^[A-Z0-9][A-Z0-9._-]*$"
+                  },
+                  "name": {
+                    "type": "string",
+                    "maxLength": 255
+                  },
+                  "location_label": {
+                    "type": "string",
+                    "maxLength": 255,
+                    "nullable": true
+                  },
+                  "is_active": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users": {
+      "get": {
+        "operationId": "get_users",
+        "description": "",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "per_page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 25
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "maxLength": 100
+            },
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserListResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "403": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "404": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "409": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "419": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "422": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "429": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "500": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "503": {
+            "$ref": "#/components/responses/StandardError"
+          }
+        }
+      },
+      "post": {
+        "operationId": "post_users",
+        "description": "",
+        "parameters": [
+          {
+            "name": "X-XSRF-TOKEN",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "URL-decoded XSRF-TOKEN cookie value."
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "403": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "404": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "409": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "419": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "422": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "429": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "500": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "503": {
+            "$ref": "#/components/responses/StandardError"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "maxLength": 255
+                  },
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "maxLength": 255
+                  },
+                  "password": {
+                    "type": "string",
+                    "minLength": 12,
+                    "maxLength": 128,
+                    "writeOnly": true
+                  },
+                  "role": {
+                    "type": "string",
+                    "enum": [
+                      "System Admin",
+                      "Inventory Manager",
+                      "Store Keeper",
+                      "Auditor"
+                    ]
+                  },
+                  "store_ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "uniqueItems": true
+                  },
+                  "is_active": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "name",
+                  "email",
+                  "password",
+                  "role",
+                  "store_ids",
+                  "is_active"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/{user}": {
+      "patch": {
+        "operationId": "patch_users__user_",
+        "description": "Admin only; last active administrator cannot be removed (409 LAST_ADMIN).",
+        "parameters": [
+          {
+            "name": "user",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "X-XSRF-TOKEN",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "URL-decoded XSRF-TOKEN cookie value."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "403": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "404": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "409": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "419": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "422": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "429": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "500": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "503": {
+            "$ref": "#/components/responses/StandardError"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "maxLength": 255
+                  },
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "maxLength": 255
+                  },
+                  "password": {
+                    "type": "string",
+                    "minLength": 12,
+                    "maxLength": 128,
+                    "writeOnly": true
+                  },
+                  "role": {
+                    "type": "string",
+                    "enum": [
+                      "System Admin",
+                      "Inventory Manager",
+                      "Store Keeper",
+                      "Auditor"
+                    ]
+                  },
+                  "store_ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "uniqueItems": true
+                  },
+                  "is_active": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "name",
+                  "email",
+                  "role",
+                  "store_ids",
+                  "is_active"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/roles": {
+      "get": {
+        "operationId": "get_roles",
+        "description": "",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RolesResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "403": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "404": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "409": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "419": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "422": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "429": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "500": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "503": {
+            "$ref": "#/components/responses/StandardError"
+          }
+        }
+      }
+    },
+    "/inventory/receipts": {
+      "get": {
+        "operationId": "get_inventory_receipts",
+        "description": "",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "per_page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 25
+            }
+          },
+          {
+            "name": "store_id",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "required": false
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "draft",
+                "posted",
+                "cancelled"
+              ]
+            },
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DocumentListResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "403": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "404": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "409": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "419": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "422": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "429": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "500": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "503": {
+            "$ref": "#/components/responses/StandardError"
+          }
+        }
+      },
+      "post": {
+        "operationId": "post_inventory_receipts",
+        "description": "",
+        "parameters": [
+          {
+            "name": "X-XSRF-TOKEN",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "URL-decoded XSRF-TOKEN cookie value."
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DocumentResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "403": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "404": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "409": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "419": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "422": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "429": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "500": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "503": {
+            "$ref": "#/components/responses/StandardError"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "store_id": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "reference": {
+                    "type": "string",
+                    "maxLength": 255,
+                    "nullable": true
+                  },
+                  "remarks": {
+                    "type": "string",
+                    "maxLength": 2000,
+                    "nullable": true
+                  },
+                  "lines": {
+                    "type": "array",
+                    "minItems": 1,
+                    "maxItems": 100,
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "product_id": {
+                          "type": "integer",
+                          "minimum": 1
+                        },
+                        "quantity": {
+                          "type": "string",
+                          "pattern": "^[0-9]{1,14}(\\.[0-9]{1,4})?$",
+                          "description": "Strictly positive decimal; at most four fractional places."
+                        }
+                      },
+                      "required": [
+                        "product_id",
+                        "quantity"
+                      ]
+                    },
+                    "description": "Unique product IDs."
+                  }
+                },
+                "required": [
+                  "store_id",
+                  "lines"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/inventory/receipts/{document}": {
+      "get": {
+        "operationId": "get_inventory_receipts__document_",
+        "description": "",
+        "parameters": [
+          {
+            "name": "document",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DocumentResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "403": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "404": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "409": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "419": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "422": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "429": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "500": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "503": {
+            "$ref": "#/components/responses/StandardError"
+          }
+        }
+      },
+      "patch": {
+        "operationId": "patch_inventory_receipts__document_",
+        "description": "Draft only.",
+        "parameters": [
+          {
+            "name": "document",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "X-XSRF-TOKEN",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "URL-decoded XSRF-TOKEN cookie value."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DocumentResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "403": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "404": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "409": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "419": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "422": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "429": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "500": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "503": {
+            "$ref": "#/components/responses/StandardError"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "store_id": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "reference": {
+                    "type": "string",
+                    "maxLength": 255,
+                    "nullable": true
+                  },
+                  "remarks": {
+                    "type": "string",
+                    "maxLength": 2000,
+                    "nullable": true
+                  },
+                  "lines": {
+                    "type": "array",
+                    "minItems": 1,
+                    "maxItems": 100,
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "product_id": {
+                          "type": "integer",
+                          "minimum": 1
+                        },
+                        "quantity": {
+                          "type": "string",
+                          "pattern": "^[0-9]{1,14}(\\.[0-9]{1,4})?$",
+                          "description": "Strictly positive decimal; at most four fractional places."
+                        }
+                      },
+                      "required": [
+                        "product_id",
+                        "quantity"
+                      ]
+                    },
+                    "description": "Unique product IDs."
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/inventory/receipts/{document}/cancel": {
+      "post": {
+        "operationId": "post_inventory_receipts__document__cancel",
+        "description": "Draft only; no stock movement.",
+        "parameters": [
+          {
+            "name": "document",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "X-XSRF-TOKEN",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "URL-decoded XSRF-TOKEN cookie value."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DocumentResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "403": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "404": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "409": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "419": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "422": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "429": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "500": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "503": {
+            "$ref": "#/components/responses/StandardError"
+          }
+        }
+      }
+    },
+    "/inventory/receipts/{document}/post": {
+      "post": {
+        "operationId": "post_inventory_receipts__document__post",
+        "description": "Atomic posting. Reuse the same printable ASCII key after transport/503 errors. Changed payload with reused key returns 409.",
+        "parameters": [
+          {
+            "name": "document",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            }
+          },
+          {
+            "name": "X-XSRF-TOKEN",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "URL-decoded XSRF-TOKEN cookie value."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DocumentResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "403": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "404": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "409": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "419": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "422": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "429": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "500": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "503": {
+            "$ref": "#/components/responses/StandardError"
+          }
+        }
+      }
+    },
+    "/inventory/issues": {
+      "get": {
+        "operationId": "get_inventory_issues",
+        "description": "",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "per_page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 25
+            }
+          },
+          {
+            "name": "store_id",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "required": false
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "draft",
+                "posted",
+                "cancelled"
+              ]
+            },
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DocumentListResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "403": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "404": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "409": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "419": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "422": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "429": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "500": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "503": {
+            "$ref": "#/components/responses/StandardError"
+          }
+        }
+      },
+      "post": {
+        "operationId": "post_inventory_issues",
+        "description": "",
+        "parameters": [
+          {
+            "name": "X-XSRF-TOKEN",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "URL-decoded XSRF-TOKEN cookie value."
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DocumentResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "403": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "404": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "409": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "419": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "422": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "429": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "500": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "503": {
+            "$ref": "#/components/responses/StandardError"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "store_id": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "reference": {
+                    "type": "string",
+                    "maxLength": 255,
+                    "nullable": true
+                  },
+                  "remarks": {
+                    "type": "string",
+                    "maxLength": 2000,
+                    "nullable": true
+                  },
+                  "lines": {
+                    "type": "array",
+                    "minItems": 1,
+                    "maxItems": 100,
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "product_id": {
+                          "type": "integer",
+                          "minimum": 1
+                        },
+                        "quantity": {
+                          "type": "string",
+                          "pattern": "^[0-9]{1,14}(\\.[0-9]{1,4})?$",
+                          "description": "Strictly positive decimal; at most four fractional places."
+                        }
+                      },
+                      "required": [
+                        "product_id",
+                        "quantity"
+                      ]
+                    },
+                    "description": "Unique product IDs."
+                  }
+                },
+                "required": [
+                  "store_id",
+                  "lines"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/inventory/issues/{document}": {
+      "get": {
+        "operationId": "get_inventory_issues__document_",
+        "description": "",
+        "parameters": [
+          {
+            "name": "document",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DocumentResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "403": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "404": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "409": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "419": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "422": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "429": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "500": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "503": {
+            "$ref": "#/components/responses/StandardError"
+          }
+        }
+      },
+      "patch": {
+        "operationId": "patch_inventory_issues__document_",
+        "description": "Draft only.",
+        "parameters": [
+          {
+            "name": "document",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "X-XSRF-TOKEN",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "URL-decoded XSRF-TOKEN cookie value."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DocumentResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "403": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "404": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "409": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "419": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "422": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "429": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "500": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "503": {
+            "$ref": "#/components/responses/StandardError"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "store_id": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "reference": {
+                    "type": "string",
+                    "maxLength": 255,
+                    "nullable": true
+                  },
+                  "remarks": {
+                    "type": "string",
+                    "maxLength": 2000,
+                    "nullable": true
+                  },
+                  "lines": {
+                    "type": "array",
+                    "minItems": 1,
+                    "maxItems": 100,
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "product_id": {
+                          "type": "integer",
+                          "minimum": 1
+                        },
+                        "quantity": {
+                          "type": "string",
+                          "pattern": "^[0-9]{1,14}(\\.[0-9]{1,4})?$",
+                          "description": "Strictly positive decimal; at most four fractional places."
+                        }
+                      },
+                      "required": [
+                        "product_id",
+                        "quantity"
+                      ]
+                    },
+                    "description": "Unique product IDs."
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/inventory/issues/{document}/cancel": {
+      "post": {
+        "operationId": "post_inventory_issues__document__cancel",
+        "description": "Draft only; no stock movement.",
+        "parameters": [
+          {
+            "name": "document",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "X-XSRF-TOKEN",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "URL-decoded XSRF-TOKEN cookie value."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DocumentResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "403": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "404": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "409": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "419": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "422": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "429": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "500": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "503": {
+            "$ref": "#/components/responses/StandardError"
+          }
+        }
+      }
+    },
+    "/inventory/issues/{document}/post": {
+      "post": {
+        "operationId": "post_inventory_issues__document__post",
+        "description": "Atomic posting. Reuse the same printable ASCII key after transport/503 errors. Changed payload with reused key returns 409.",
+        "parameters": [
+          {
+            "name": "document",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            }
+          },
+          {
+            "name": "X-XSRF-TOKEN",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "URL-decoded XSRF-TOKEN cookie value."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DocumentResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "403": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "404": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "409": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "419": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "422": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "429": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "500": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "503": {
+            "$ref": "#/components/responses/StandardError"
+          }
+        }
+      }
+    },
+    "/inventory/balances": {
+      "get": {
+        "operationId": "get_inventory_balances",
+        "description": "",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "per_page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 25
+            }
+          },
+          {
+            "name": "store_id",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "required": false
+          },
+          {
+            "name": "product_id",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BalanceListResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "403": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "404": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "409": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "419": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "422": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "429": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "500": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "503": {
+            "$ref": "#/components/responses/StandardError"
+          }
+        }
+      }
+    },
+    "/inventory/ledger": {
+      "get": {
+        "operationId": "get_inventory_ledger",
+        "description": "",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "per_page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 25
+            }
+          },
+          {
+            "name": "store_id",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "required": false
+          },
+          {
+            "name": "product_id",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "required": false
+          },
+          {
+            "name": "date_from",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            },
+            "required": false
+          },
+          {
+            "name": "date_to",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            },
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LedgerListResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "403": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "404": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "409": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "419": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "422": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "429": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "500": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "503": {
+            "$ref": "#/components/responses/StandardError"
+          }
+        }
+      }
+    },
+    "/dashboard/summary": {
+      "get": {
+        "operationId": "get_dashboard_summary",
+        "description": "Current active catalog/store and scoped pending/low-stock counts. No cross-unit quantity sum.",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SummaryResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "403": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "404": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "409": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "419": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "422": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "429": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "500": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "503": {
+            "$ref": "#/components/responses/StandardError"
+          }
+        }
+      }
+    },
+    "/reports/stock-summary": {
+      "get": {
+        "operationId": "get_reports_stock_summary",
+        "description": "Active stores/products; missing balances count as zero. Low stock is quantity < reorder level.",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "per_page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 25
+            }
+          },
+          {
+            "name": "store_id",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "required": false
+          },
+          {
+            "name": "product_id",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StockReportListResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "403": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "404": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "409": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "419": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "422": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "429": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "500": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "503": {
+            "$ref": "#/components/responses/StandardError"
+          }
+        }
+      }
+    },
+    "/reports/low-stock": {
+      "get": {
+        "operationId": "get_reports_low_stock",
+        "description": "Active stores/products; missing balances count as zero. Low stock is quantity < reorder level.",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "per_page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 25
+            }
+          },
+          {
+            "name": "store_id",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "required": false
+          },
+          {
+            "name": "product_id",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StockReportListResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "403": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "404": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "409": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "419": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "422": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "429": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "500": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "503": {
+            "$ref": "#/components/responses/StandardError"
+          }
+        }
+      }
+    },
+    "/reports/movements": {
+      "get": {
+        "operationId": "get_reports_movements",
+        "description": "Exact ledger aggregates per product/store; inclusive UTC dates.",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "per_page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 25
+            }
+          },
+          {
+            "name": "store_id",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "required": false
+          },
+          {
+            "name": "product_id",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "required": false
+          },
+          {
+            "name": "date_from",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            },
+            "required": false
+          },
+          {
+            "name": "date_to",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            },
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MovementReportListResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "403": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "404": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "409": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "419": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "422": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "429": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "500": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "503": {
+            "$ref": "#/components/responses/StandardError"
+          }
+        }
+      }
+    },
+    "/audit-logs": {
+      "get": {
+        "operationId": "get_audit_logs",
+        "description": "Admin/Auditor only. Non-admins see store/document events in scope and transfer events only with both stores. Global events are Admin-only.",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "per_page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 25
+            }
+          },
+          {
+            "name": "date_from",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            },
+            "required": false
+          },
+          {
+            "name": "date_to",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            },
+            "required": false
+          },
+          {
+            "name": "action",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuditListResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "403": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "404": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "409": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "419": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "422": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "429": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "500": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "503": {
+            "$ref": "#/components/responses/StandardError"
+          }
+        }
+      }
+    },
+    "/reports/movements/export": {
+      "get": {
+        "operationId": "get_reports_movements_export",
+        "description": "Requires reports.export. Stream individual scoped ledger rows as formula-neutralized CSV, at most 366 days and 10,000 rows. Five requests/minute per actor. 422 asks for narrower filters. The export fixes at most 10,000 ledger IDs at request start; later postings are excluded.",
+        "parameters": [
+          {
+            "name": "store_id",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "required": false
+          },
+          {
+            "name": "product_id",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "required": false
+          },
+          {
+            "name": "date_from",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            },
+            "required": true
+          },
+          {
+            "name": "date_to",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "CSV download",
+            "content": {
+              "text/csv": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "403": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "404": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "409": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "419": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "422": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "429": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "500": {
+            "$ref": "#/components/responses/StandardError"
+          },
+          "503": {
+            "$ref": "#/components/responses/StandardError"
+          }
+        }
+      }
+    },
+    "/sanctum/csrf-cookie": {
+      "get": {
+        "operationId": "initializeCsrf",
+        "servers": [
+          {
+            "url": "/"
+          }
+        ],
+        "security": [],
+        "responses": {
+          "204": {
+            "description": "Sets XSRF-TOKEN and session cookies"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "session": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "stockflow-session"
+      }
+    },
+    "schemas": {
+      "TransferDraft": {
+        "type": "object",
+        "required": [
+          "from_store_id",
+          "to_store_id",
+          "lines"
+        ],
+        "properties": {
+          "from_store_id": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "to_store_id": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "lines": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 100,
+            "items": {
+              "type": "object",
+              "required": [
+                "product_id",
+                "quantity"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "product_id": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "quantity": {
+                  "type": "string",
+                  "pattern": "^[0-9]{1,14}(\\.[0-9]{1,4})?$",
+                  "description": "Positive decimal string; output has four decimal places."
+                }
+              }
+            },
+            "description": "Distinct product IDs required."
+          }
+        }
+      },
+      "TransferPatch": {
+        "type": "object",
+        "properties": {
+          "from_store_id": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "to_store_id": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "lines": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 100,
+            "items": {
+              "type": "object",
+              "required": [
+                "product_id",
+                "quantity"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "product_id": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "quantity": {
+                  "type": "string",
+                  "pattern": "^[0-9]{1,14}(\\.[0-9]{1,4})?$",
+                  "description": "Positive decimal string; output has four decimal places."
+                }
+              }
+            },
+            "description": "Distinct product IDs required."
+          }
+        }
+      },
+      "Transfer": {
+        "type": "object",
+        "required": [
+          "id",
+          "number",
+          "from_store_id",
+          "to_store_id",
+          "status",
+          "created_by",
+          "lines",
+          "submitted_by",
+          "approved_by",
+          "rejected_by",
+          "created_at",
+          "submitted_at",
+          "approved_at",
+          "posted_at",
+          "rejected_at",
+          "rejection_reason"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "number": {
+            "type": "string"
+          },
+          "from_store_id": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "to_store_id": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "draft",
+              "submitted",
+              "approved_posted",
+              "rejected",
+              "cancelled"
+            ]
+          },
+          "created_by": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "lines": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "product_id": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "quantity": {
+                  "type": "string",
+                  "pattern": "^[0-9]{1,14}(\\.[0-9]{1,4})?$",
+                  "description": "Positive decimal string; output has four decimal places."
+                }
+              }
+            }
+          },
+          "submitted_by": {
+            "type": "integer",
+            "minimum": 1,
+            "nullable": true
+          },
+          "approved_by": {
+            "type": "integer",
+            "minimum": 1,
+            "nullable": true
+          },
+          "rejected_by": {
+            "type": "integer",
+            "minimum": 1,
+            "nullable": true
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": false
+          },
+          "submitted_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "approved_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "posted_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "rejected_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "rejection_reason": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 1000
+          }
+        }
+      },
+      "TransferResponse": {
+        "type": "object",
+        "required": [
+          "data",
+          "meta"
+        ],
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/Transfer"
+          },
+          "meta": {
+            "type": "object",
+            "properties": {
+              "request_id": {
+                "type": "string",
+                "format": "uuid"
+              }
+            }
+          }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "required": [
+          "error",
+          "meta"
+        ],
+        "properties": {
+          "error": {
+            "type": "object",
+            "properties": {
+              "code": {
+                "type": "string"
+              },
+              "message": {
+                "type": "string"
+              },
+              "details": {
+                "type": "array",
+                "items": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "meta": {
+            "type": "object",
+            "properties": {
+              "request_id": {
+                "type": "string",
+                "format": "uuid"
+              }
+            }
+          }
+        }
+      },
+      "Category": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "name": {
+            "type": "string"
+          },
+          "is_active": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "is_active"
+        ]
+      },
+      "Store": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "code": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "location_label": {
+            "type": "string",
+            "nullable": true
+          },
+          "is_active": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "code",
+          "name",
+          "location_label",
+          "is_active"
+        ]
+      },
+      "Product": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "sku": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "category_id": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "base_uom": {
+            "type": "string"
+          },
+          "reorder_level": {
+            "type": "string",
+            "pattern": "^-?[0-9]+\\.[0-9]{4}$",
+            "example": "20.0000"
+          },
+          "is_active": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "sku",
+          "name",
+          "category_id",
+          "base_uom",
+          "reorder_level",
+          "is_active"
+        ]
+      },
+      "User": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "is_active": {
+            "type": "boolean"
+          },
+          "roles": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "permissions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "store_ids": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          "assigned_store_ids": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "email",
+          "is_active",
+          "roles",
+          "permissions",
+          "store_ids",
+          "assigned_store_ids"
+        ]
+      },
+      "Balance": {
+        "type": "object",
+        "properties": {
+          "store_id": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "product_id": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "quantity": {
+            "type": "string",
+            "pattern": "^-?[0-9]+\\.[0-9]{4}$",
+            "example": "20.0000"
+          }
+        },
+        "required": [
+          "store_id",
+          "product_id",
+          "quantity"
+        ]
+      },
+      "Ledger": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "store_id": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "product_id": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "movement_type": {
+            "type": "string",
+            "enum": [
+              "receipt",
+              "issue",
+              "transfer_in",
+              "transfer_out"
+            ]
+          },
+          "source_type": {
+            "type": "string",
+            "enum": [
+              "document",
+              "transfer"
+            ]
+          },
+          "source_id": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "source_line_id": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "quantity_delta": {
+            "type": "string",
+            "pattern": "^-?[0-9]+\\.[0-9]{4}$",
+            "example": "20.0000"
+          },
+          "balance_after": {
+            "type": "string",
+            "pattern": "^-?[0-9]+\\.[0-9]{4}$",
+            "example": "20.0000"
+          },
+          "posted_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "actor_id": {
+            "type": "integer",
+            "minimum": 1
+          }
+        },
+        "required": [
+          "id",
+          "store_id",
+          "product_id",
+          "movement_type",
+          "source_type",
+          "source_id",
+          "source_line_id",
+          "quantity_delta",
+          "balance_after",
+          "posted_at",
+          "actor_id"
+        ]
+      },
+      "Document": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "number": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "receipt",
+              "issue"
+            ]
+          },
+          "store_id": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "draft",
+              "posted",
+              "cancelled"
+            ]
+          },
+          "reference": {
+            "type": "string",
+            "nullable": true
+          },
+          "remarks": {
+            "type": "string",
+            "nullable": true
+          },
+          "created_by": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "posted_by": {
+            "type": "integer",
+            "minimum": 1,
+            "nullable": true
+          },
+          "posted_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "lines": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "product_id": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "quantity": {
+                  "type": "string",
+                  "pattern": "^-?[0-9]+\\.[0-9]{4}$",
+                  "example": "20.0000"
+                }
+              },
+              "required": [
+                "id",
+                "product_id",
+                "quantity"
+              ]
+            }
+          }
+        },
+        "required": [
+          "id",
+          "number",
+          "type",
+          "store_id",
+          "status",
+          "reference",
+          "remarks",
+          "created_by",
+          "posted_by",
+          "posted_at",
+          "created_at",
+          "lines"
+        ]
+      },
+      "StockReport": {
+        "type": "object",
+        "properties": {
+          "store_id": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "store_name": {
+            "type": "string"
+          },
+          "product_id": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "sku": {
+            "type": "string"
+          },
+          "product_name": {
+            "type": "string"
+          },
+          "base_uom": {
+            "type": "string"
+          },
+          "reorder_level": {
+            "type": "string",
+            "pattern": "^-?[0-9]+\\.[0-9]{4}$",
+            "example": "20.0000"
+          },
+          "quantity": {
+            "type": "string",
+            "pattern": "^-?[0-9]+\\.[0-9]{4}$",
+            "example": "20.0000"
+          }
+        },
+        "required": [
+          "store_id",
+          "store_name",
+          "product_id",
+          "sku",
+          "product_name",
+          "base_uom",
+          "reorder_level",
+          "quantity"
+        ]
+      },
+      "MovementReport": {
+        "type": "object",
+        "properties": {
+          "store_id": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "store_name": {
+            "type": "string"
+          },
+          "product_id": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "sku": {
+            "type": "string"
+          },
+          "product_name": {
+            "type": "string"
+          },
+          "base_uom": {
+            "type": "string"
+          },
+          "incoming": {
+            "type": "string",
+            "pattern": "^-?[0-9]+\\.[0-9]{4}$",
+            "example": "20.0000"
+          },
+          "outgoing": {
+            "type": "string",
+            "pattern": "^-?[0-9]+\\.[0-9]{4}$",
+            "example": "20.0000"
+          },
+          "net": {
+            "type": "string",
+            "pattern": "^-?[0-9]+\\.[0-9]{4}$",
+            "example": "20.0000"
+          },
+          "movement_count": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "store_id",
+          "store_name",
+          "product_id",
+          "sku",
+          "product_name",
+          "base_uom",
+          "incoming",
+          "outgoing",
+          "net",
+          "movement_count"
+        ]
+      },
+      "Summary": {
+        "type": "object",
+        "properties": {
+          "active_products": {
+            "type": "integer"
+          },
+          "active_stores": {
+            "type": "integer"
+          },
+          "pending_transfers": {
+            "type": "integer"
+          },
+          "low_stock_positions": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "active_products",
+          "active_stores",
+          "pending_transfers",
+          "low_stock_positions"
+        ]
+      },
+      "Audit": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "actor_id": {
+            "type": "integer",
+            "minimum": 1,
+            "nullable": true
+          },
+          "action": {
+            "type": "string"
+          },
+          "subject_type": {
+            "type": "string"
+          },
+          "subject_id": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "request_id": {
+            "type": "string",
+            "nullable": true
+          },
+          "metadata": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "actor_id",
+          "action",
+          "subject_type",
+          "subject_id",
+          "request_id",
+          "metadata",
+          "created_at"
+        ]
+      },
+      "Roles": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "enum": [
+            "System Admin",
+            "Inventory Manager",
+            "Store Keeper",
+            "Auditor"
+          ]
+        }
+      },
+      "TransferListResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Transfer"
+            }
+          },
+          "meta": {
+            "type": "object",
+            "properties": {
+              "request_id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "total": {
+                "type": "integer"
+              },
+              "current_page": {
+                "type": "integer"
+              },
+              "per_page": {
+                "type": "integer"
+              }
+            }
+          },
+          "links": {
+            "type": "object"
+          }
+        }
+      },
+      "UserResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/User"
+          },
+          "meta": {
+            "type": "object",
+            "properties": {
+              "request_id": {
+                "type": "string"
+              },
+              "current_page": {
+                "type": "integer"
+              },
+              "last_page": {
+                "type": "integer"
+              },
+              "per_page": {
+                "type": "integer"
+              },
+              "total": {
+                "type": "integer"
+              }
+            },
+            "required": [
+              "request_id"
+            ]
+          }
+        },
+        "required": [
+          "data",
+          "meta"
+        ]
+      },
+      "CategoryListResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Category"
+            }
+          },
+          "meta": {
+            "type": "object",
+            "properties": {
+              "request_id": {
+                "type": "string"
+              },
+              "current_page": {
+                "type": "integer"
+              },
+              "last_page": {
+                "type": "integer"
+              },
+              "per_page": {
+                "type": "integer"
+              },
+              "total": {
+                "type": "integer"
+              }
+            },
+            "required": [
+              "request_id"
+            ]
+          }
+        },
+        "required": [
+          "data",
+          "meta"
+        ]
+      },
+      "CategoryResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/Category"
+          },
+          "meta": {
+            "type": "object",
+            "properties": {
+              "request_id": {
+                "type": "string"
+              },
+              "current_page": {
+                "type": "integer"
+              },
+              "last_page": {
+                "type": "integer"
+              },
+              "per_page": {
+                "type": "integer"
+              },
+              "total": {
+                "type": "integer"
+              }
+            },
+            "required": [
+              "request_id"
+            ]
+          }
+        },
+        "required": [
+          "data",
+          "meta"
+        ]
+      },
+      "ProductListResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Product"
+            }
+          },
+          "meta": {
+            "type": "object",
+            "properties": {
+              "request_id": {
+                "type": "string"
+              },
+              "current_page": {
+                "type": "integer"
+              },
+              "last_page": {
+                "type": "integer"
+              },
+              "per_page": {
+                "type": "integer"
+              },
+              "total": {
+                "type": "integer"
+              }
+            },
+            "required": [
+              "request_id"
+            ]
+          }
+        },
+        "required": [
+          "data",
+          "meta"
+        ]
+      },
+      "ProductResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/Product"
+          },
+          "meta": {
+            "type": "object",
+            "properties": {
+              "request_id": {
+                "type": "string"
+              },
+              "current_page": {
+                "type": "integer"
+              },
+              "last_page": {
+                "type": "integer"
+              },
+              "per_page": {
+                "type": "integer"
+              },
+              "total": {
+                "type": "integer"
+              }
+            },
+            "required": [
+              "request_id"
+            ]
+          }
+        },
+        "required": [
+          "data",
+          "meta"
+        ]
+      },
+      "StoreListResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Store"
+            }
+          },
+          "meta": {
+            "type": "object",
+            "properties": {
+              "request_id": {
+                "type": "string"
+              },
+              "current_page": {
+                "type": "integer"
+              },
+              "last_page": {
+                "type": "integer"
+              },
+              "per_page": {
+                "type": "integer"
+              },
+              "total": {
+                "type": "integer"
+              }
+            },
+            "required": [
+              "request_id"
+            ]
+          }
+        },
+        "required": [
+          "data",
+          "meta"
+        ]
+      },
+      "StoreResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/Store"
+          },
+          "meta": {
+            "type": "object",
+            "properties": {
+              "request_id": {
+                "type": "string"
+              },
+              "current_page": {
+                "type": "integer"
+              },
+              "last_page": {
+                "type": "integer"
+              },
+              "per_page": {
+                "type": "integer"
+              },
+              "total": {
+                "type": "integer"
+              }
+            },
+            "required": [
+              "request_id"
+            ]
+          }
+        },
+        "required": [
+          "data",
+          "meta"
+        ]
+      },
+      "UserListResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/User"
+            }
+          },
+          "meta": {
+            "type": "object",
+            "properties": {
+              "request_id": {
+                "type": "string"
+              },
+              "current_page": {
+                "type": "integer"
+              },
+              "last_page": {
+                "type": "integer"
+              },
+              "per_page": {
+                "type": "integer"
+              },
+              "total": {
+                "type": "integer"
+              }
+            },
+            "required": [
+              "request_id"
+            ]
+          }
+        },
+        "required": [
+          "data",
+          "meta"
+        ]
+      },
+      "RolesResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/Roles"
+          },
+          "meta": {
+            "type": "object",
+            "properties": {
+              "request_id": {
+                "type": "string"
+              },
+              "current_page": {
+                "type": "integer"
+              },
+              "last_page": {
+                "type": "integer"
+              },
+              "per_page": {
+                "type": "integer"
+              },
+              "total": {
+                "type": "integer"
+              }
+            },
+            "required": [
+              "request_id"
+            ]
+          }
+        },
+        "required": [
+          "data",
+          "meta"
+        ]
+      },
+      "DocumentListResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Document"
+            }
+          },
+          "meta": {
+            "type": "object",
+            "properties": {
+              "request_id": {
+                "type": "string"
+              },
+              "current_page": {
+                "type": "integer"
+              },
+              "last_page": {
+                "type": "integer"
+              },
+              "per_page": {
+                "type": "integer"
+              },
+              "total": {
+                "type": "integer"
+              }
+            },
+            "required": [
+              "request_id"
+            ]
+          }
+        },
+        "required": [
+          "data",
+          "meta"
+        ]
+      },
+      "DocumentResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/Document"
+          },
+          "meta": {
+            "type": "object",
+            "properties": {
+              "request_id": {
+                "type": "string"
+              },
+              "current_page": {
+                "type": "integer"
+              },
+              "last_page": {
+                "type": "integer"
+              },
+              "per_page": {
+                "type": "integer"
+              },
+              "total": {
+                "type": "integer"
+              }
+            },
+            "required": [
+              "request_id"
+            ]
+          }
+        },
+        "required": [
+          "data",
+          "meta"
+        ]
+      },
+      "BalanceListResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Balance"
+            }
+          },
+          "meta": {
+            "type": "object",
+            "properties": {
+              "request_id": {
+                "type": "string"
+              },
+              "current_page": {
+                "type": "integer"
+              },
+              "last_page": {
+                "type": "integer"
+              },
+              "per_page": {
+                "type": "integer"
+              },
+              "total": {
+                "type": "integer"
+              }
+            },
+            "required": [
+              "request_id"
+            ]
+          }
+        },
+        "required": [
+          "data",
+          "meta"
+        ]
+      },
+      "LedgerListResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Ledger"
+            }
+          },
+          "meta": {
+            "type": "object",
+            "properties": {
+              "request_id": {
+                "type": "string"
+              },
+              "current_page": {
+                "type": "integer"
+              },
+              "last_page": {
+                "type": "integer"
+              },
+              "per_page": {
+                "type": "integer"
+              },
+              "total": {
+                "type": "integer"
+              }
+            },
+            "required": [
+              "request_id"
+            ]
+          }
+        },
+        "required": [
+          "data",
+          "meta"
+        ]
+      },
+      "SummaryResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/Summary"
+          },
+          "meta": {
+            "type": "object",
+            "properties": {
+              "request_id": {
+                "type": "string"
+              },
+              "current_page": {
+                "type": "integer"
+              },
+              "last_page": {
+                "type": "integer"
+              },
+              "per_page": {
+                "type": "integer"
+              },
+              "total": {
+                "type": "integer"
+              }
+            },
+            "required": [
+              "request_id"
+            ]
+          }
+        },
+        "required": [
+          "data",
+          "meta"
+        ]
+      },
+      "StockReportListResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/StockReport"
+            }
+          },
+          "meta": {
+            "type": "object",
+            "properties": {
+              "request_id": {
+                "type": "string"
+              },
+              "current_page": {
+                "type": "integer"
+              },
+              "last_page": {
+                "type": "integer"
+              },
+              "per_page": {
+                "type": "integer"
+              },
+              "total": {
+                "type": "integer"
+              }
+            },
+            "required": [
+              "request_id"
+            ]
+          }
+        },
+        "required": [
+          "data",
+          "meta"
+        ]
+      },
+      "MovementReportListResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MovementReport"
+            }
+          },
+          "meta": {
+            "type": "object",
+            "properties": {
+              "request_id": {
+                "type": "string"
+              },
+              "current_page": {
+                "type": "integer"
+              },
+              "last_page": {
+                "type": "integer"
+              },
+              "per_page": {
+                "type": "integer"
+              },
+              "total": {
+                "type": "integer"
+              }
+            },
+            "required": [
+              "request_id"
+            ]
+          }
+        },
+        "required": [
+          "data",
+          "meta"
+        ]
+      },
+      "AuditListResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Audit"
+            }
+          },
+          "meta": {
+            "type": "object",
+            "properties": {
+              "request_id": {
+                "type": "string"
+              },
+              "current_page": {
+                "type": "integer"
+              },
+              "last_page": {
+                "type": "integer"
+              },
+              "per_page": {
+                "type": "integer"
+              },
+              "total": {
+                "type": "integer"
+              }
+            },
+            "required": [
+              "request_id"
+            ]
+          }
+        },
+        "required": [
+          "data",
+          "meta"
+        ]
+      }
+    },
+    "responses": {
+      "Error401": {
+        "description": "Unauthenticated",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "Error403": {
+        "description": "Forbidden action, inactive user or self-approval",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "Error404": {
+        "description": "Not found or outside either store scope",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "Error409": {
+        "description": "Invalid state, already processed or idempotency conflict",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "Error419": {
+        "description": "CSRF/session expiry",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "Error422": {
+        "description": "Validation, insufficient stock, inactive master or overflow",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "Error429": {
+        "description": "Posting throttle",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "Error500": {
+        "description": "Sanitized server error",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "Error503": {
+        "description": "Retryable lock conflict",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "StandardError": {
+        "description": "Standard error envelope; see docs/api.md",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "details": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "additionalProperties": true
+                      }
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "message",
+                    "details"
+                  ]
+                },
+                "meta": {
+                  "type": "object",
+                  "properties": {
+                    "request_id": {
+                      "type": "string"
+                    },
+                    "current_page": {
+                      "type": "integer"
+                    },
+                    "last_page": {
+                      "type": "integer"
+                    },
+                    "per_page": {
+                      "type": "integer"
+                    },
+                    "total": {
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "request_id"
+                  ]
+                }
+              },
+              "required": [
+                "error",
+                "meta"
+              ]
+            }
+          }
+        }
+      }
+    }
+  }
+}

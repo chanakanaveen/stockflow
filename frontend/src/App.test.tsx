@@ -22,6 +22,8 @@ const manager = {
     'transfers.cancel',
     'transfers.approve',
     'transfers.reject',
+    'reports.view',
+    'reports.export',
   ],
   store_ids: [1, 2],
 }
@@ -130,6 +132,30 @@ beforeEach(() => {
       if (path.startsWith('/api/v1/stores')) return envelope(stores)
       if (path.startsWith('/api/v1/categories'))
         return envelope([{ id: 1, name: 'Office', is_active: true }])
+      if (path.startsWith('/api/v1/dashboard/summary'))
+        return envelope({
+          low_stock_positions: 2,
+          active_products: 1,
+          active_stores: 2,
+          pending_transfers: 1,
+        })
+      if (path.startsWith('/api/v1/reports/'))
+        return envelope([
+          {
+            store_id: 1,
+            store_name: 'Main Warehouse',
+            product_id: 1,
+            product_name: 'Desk notebook',
+            sku: 'P-01',
+            base_uom: 'unit',
+            quantity: '0.0000',
+            reorder_level: '5.0000',
+            incoming: '10.0000',
+            outgoing: '2.0000',
+            net: '8.0000',
+            movement_count: 2,
+          },
+        ])
       if (path.startsWith('/api/v1/transfers')) return envelope([transfer()])
       return envelope([])
     }),
@@ -233,4 +259,23 @@ describe('Inventory workspace', () => {
     expect(await screen.findByRole('heading', { name: 'Welcome back' })).toBeInTheDocument()
     expect(screen.getByRole('alert')).toHaveTextContent('session expired')
   })
+})
+
+it('shows scoped reports and requires dates before CSV export', async () => {
+  window.history.replaceState({}, '', '/reports?view=low-stock')
+  const interaction = userEvent.setup()
+  render(<App />)
+  expect(await screen.findByText('0.0000')).toBeInTheDocument()
+  await interaction.selectOptions(screen.getByLabelText('Report type'), 'movements')
+  expect(await screen.findByText('8.0000')).toBeInTheDocument()
+  expect(screen.getByRole('button', { name: 'Export movements CSV' })).toBeDisabled()
+  await interaction.type(screen.getByLabelText('From date'), '2026-01-01')
+  await interaction.type(screen.getByLabelText('To date'), '2026-01-31')
+  expect(screen.getByRole('button', { name: 'Export movements CSV' })).toBeEnabled()
+})
+it('denies audit history without audit permission', async () => {
+  window.history.replaceState({}, '', '/audit')
+  render(<App />)
+  expect(await screen.findByText('Access restricted')).toBeInTheDocument()
+  expect(requests.some((r) => r.path.includes('audit-logs'))).toBe(false)
 })

@@ -4,6 +4,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\InventoryReadController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\ReportController;
 use App\Http\Controllers\StockDocumentController;
 use App\Http\Controllers\StockTransferController;
 use App\Http\Controllers\StoreController;
@@ -24,6 +25,12 @@ Route::prefix('api/v1')->group(function (): void {
         Route::apiResource('products', ProductController::class)->except('destroy');
         Route::get('inventory/balances', [InventoryReadController::class, 'balances']);
         Route::get('inventory/ledger', [InventoryReadController::class, 'ledger']);
+        Route::get('dashboard/summary', [ReportController::class, 'summary']);
+        Route::get('reports/stock-summary', [ReportController::class, 'stock']);
+        Route::get('reports/low-stock', [ReportController::class, 'stock'])->name('reports.low-stock');
+        Route::get('reports/movements', [ReportController::class, 'movements']);
+        Route::get('reports/movements/export', [ReportController::class, 'export'])->middleware('throttle:exports');
+        Route::get('audit-logs', [ReportController::class, 'audit']);
         foreach (['receipts' => 'receipt', 'issues' => 'issue'] as $path => $kind) {
             Route::get('inventory/'.$path, [StockDocumentController::class, 'index'])->defaults('kind', $kind);
             Route::post('inventory/'.$path, [StockDocumentController::class, 'store'])->defaults('kind', $kind);
