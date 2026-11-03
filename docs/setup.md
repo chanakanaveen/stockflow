@@ -1,6 +1,6 @@
-# Phase 1 local setup
+# Local setup
 
-Phase 1 includes cookie login/logout, active-account checks, seeded roles, store assignments, scoped store reads, an admin-only user list, and a React login/workspace screen. Inventory posting and master editing are not implemented yet.
+StockFlow includes cookie authentication, role and store access controls, inventory masters, receipt/issue posting, transfer approvals, and the React inventory workspace. See the implementation status for verified milestones and remaining work.
 
 ## Native PHP / Node / MySQL
 
@@ -82,6 +82,12 @@ Do not remove database volumes or roll back populated migrations casually. No de
 The Phase 1 validation instance uses a new MySQL 9.1 process with its data under ignored .local/mysql-data, bound to 127.0.0.1:13316. It is separate from WAMP's existing data. Generated development/test credentials and the local demo password are in ignored backend/.env and backend/.env.testing; administrative connection details are in ignored .local/mysql-root.cnf.
 
 This native validation alternative was explicitly approved by the user because Docker was unavailable. Passing native tests does not establish that the Compose image builds or MySQL 8.4 execution succeeds. Record those checks separately when Docker is available.
+
+## Dashboard and browser demo
+
+Phase 4 replaces the foundation screen with the inventory workspace. Your role controls visible navigation and actions; authorization remains server-enforced. Admins manage users, roles and assigned stores from Team & access. Receipt/issue posting and transfer approval require explicit confirmation.
+
+For the automated fictional demo, configure backend/.env.testing, then run `npx playwright install chromium` and `npm run test:e2e` inside frontend. This intentionally resets stockflow_test only and uses ports 18100/5174. Run it separately from backend database tests. It never resets the development stockflow database. See the [Phase 4 report](phase4-verification.md) for coverage, screenshots and limitations. Use VITE_DISPLAY_TIMEZONE to select a valid IANA display timezone; the default is Asia/Colombo.
 
 ## HTTP smoke test
 

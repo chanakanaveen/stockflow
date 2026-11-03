@@ -18,6 +18,7 @@ class UserResource extends JsonResource
             'roles' => $this->getRoleNames()->sort()->values(),
             'permissions' => $this->getAllPermissions()->pluck('name')->sort()->values(),
             'store_ids' => Store::query()->accessibleTo($this->resource)->orderBy('id')->pluck('id'),
+            'assigned_store_ids' => $this->stores()->orderBy('stores.id')->pluck('stores.id'),
         ];
     }
 

@@ -16,9 +16,18 @@
 | 1 — Foundation and identity | Implemented and verified with approved native-MySQL exception | 16 backend tests / 60 assertions; 3 frontend tests; typecheck, lint, build, static analysis and HTTP smoke passed |
 | 2 — Masters and inventory core | Implemented and verified with approved native-MySQL exception | 42 backend tests / 227 assertions including concurrent MySQL processes; static analysis, formatting, Composer validation and reconciliation passed |
 | 3 — Transfers and approvals | Implemented and verified with approved native-MySQL exception | 56 backend tests / 406 assertions including eight new transfer races; static analysis, formatting, Composer, reconciliation and API route checks passed |
-| 4 — React dashboard | Pending | Not run |
+| 4 — React dashboard | Implemented and verified with approved native-MySQL exception | 16 UI tests, 2 real-browser scenarios, backend regression checks, typecheck/lint/build and static analysis passed |
 | 5 — Reporting and hardening | Pending | Not run |
 | 6 — Portfolio and release readiness | Pending | Not run |
+
+## Phase 4 — 2026-11-03
+
+- Completed: responsive authenticated React workspace, master and user management, receipts/issues, transfer approvals, balances and ledger. Added admin user/role APIs and last-active-admin protection.
+- Verification: 16 UI tests passed; TypeScript, ESLint and production build passed. The prior backend run passed all 56 existing tests; after correcting empty store assignment validation, both new user-management tests passed (18 assertions).
+- Real HTTP authentication smoke passed through the development proxy. Browser tests verified transfer submission, separate approval and 80/50 balances, and the admin/auditor/insufficient-stock scenario. Final browser rerun passed both scenarios in 2.0 minutes after fixing accessible form labels and a ledger navigation race in the test. Desktop ledger and mobile overview were visually inspected.
+- PHPStan level 5, Pint and strict Composer validation passed. No failing required checks remain. GitHub identity is chanakanaveen; staged secret/diff review and commit/push agreement are checked at publication.
+- Limits: approved native MySQL 9.1 validation; Docker/Compose and MySQL 8.4 remain unverified. Production npm audit has zero advisories; the development dependency tree has 12 moderate advisories.
+- Phase 5 has been authorized by the user and will follow the Phase 4 checkpoint. Phase 6 remains pending.
 
 ## Phase 0 — 2026-10-30
 

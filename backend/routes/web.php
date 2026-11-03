@@ -33,6 +33,9 @@ Route::prefix('api/v1')->group(function (): void {
             Route::post('inventory/'.$path.'/{document}/post', [StockDocumentController::class, 'post'])->defaults('kind', $kind)->middleware('throttle:posting');
         }
         Route::get('users', [UserController::class, 'index']);
+        Route::post('users', [UserController::class, 'store']);
+        Route::patch('users/{user}', [UserController::class, 'update']);
+        Route::get('roles', [UserController::class, 'roles']);
         Route::get('transfers', [StockTransferController::class, 'index']);
         Route::post('transfers', [StockTransferController::class, 'store']);
         Route::get('transfers/{transfer}', [StockTransferController::class, 'show']);

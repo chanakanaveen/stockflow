@@ -1,6 +1,6 @@
 # Verification plan and current evidence
 
-Backend and frontend checks are available. See the [Phase 1 report](phase1-verification.md), [Phase 2 report](phase2-verification.md) and [Phase 3 report](phase3-verification.md) for actual results, commands and platform limitations. The matrix below also describes later-phase tests that are not implemented yet.
+Backend and frontend checks are available. See the [Phase 1 report](phase1-verification.md), [Phase 2 report](phase2-verification.md), [Phase 3 report](phase3-verification.md), and [Phase 4 report](phase4-verification.md) for actual results, commands and platform limitations. The matrix below also describes later-phase tests that are not implemented yet.
 
 ## Planned checks by layer
 
@@ -15,7 +15,9 @@ Backend and frontend checks are available. See the [Phase 1 report](phase1-verif
 
 ## Check interfaces
 
-Backend working directory: `backend/`. Run `php artisan test`, `php artisan test --testsuite=Integration`, `vendor/bin/pint --test` and `vendor/bin/phpstan analyse`. The Phase 2 Integration suite exercises independent MySQL connections with committed fixtures and a synchronization barrier. Run database suites serially, never concurrently against the same test database. Frontend working directory: `frontend/`. Run `npm run typecheck`, `npm run lint`, `npm run test -- --run`, and `npm run build`. Playwright E2E coverage remains planned for the dashboard phase. On this Windows host, use the single-process PHPStan command in the Phase 1 report.
+Backend working directory: `backend/`. Run `php artisan test`, `php artisan test --testsuite=Integration`, `vendor/bin/pint --test` and `vendor/bin/phpstan analyse`. The Integration suite exercises independent MySQL connections with committed fixtures and a synchronization barrier. Run database suites serially, never concurrently against the same test database. Frontend working directory: `frontend/`. Run `npm run typecheck`, `npm run lint`, `npm run test -- --run`, and `npm run build`. On this Windows host, use the single-process PHPStan command in the Phase 1 report.
+
+Phase 4 adds `npm run test:e2e` in frontend. It resets only the guarded stockflow_test schema, generates fictional fixtures and ephemeral credentials, and runs Chromium against actual Laravel APIs on owned test servers. Install Chromium with `npx playwright install chromium`. Do not run this command alongside backend database tests. Component tests use a single worker thread to avoid Windows fork startup timeouts.
 
 Use an explicitly isolated MySQL test database with restricted credentials and a test-only database-name guard before any reset. Never point test migration/reset helpers at a developer or production database. CI provisions its own MySQL service. SQLite may support pure tests but cannot establish locking correctness.
 

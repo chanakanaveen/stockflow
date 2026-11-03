@@ -1,6 +1,6 @@
 # API contract and remaining plans
 
-Phases 1–3 implement authentication, store reads, admin user listing, master management, receipt/issue posting, inventory reads and transfers. See the [Phase 2 report](phase2-verification.md) and [Phase 3 report](phase3-verification.md) for exact behavior, and the [transfer OpenAPI contract](openapi-transfers.json). User mutations, role listing, reports/dashboard and audit viewer routes below remain planned. Prefix all application routes with `/api/v1`. Sanctum CSRF initialization uses `/sanctum/csrf-cookie`. Cookie credentials and CSRF header are required for browser mutations; use a same-origin dev proxy. Production uses HTTPS, Secure/HttpOnly session cookies and SameSite=Lax; no wildcard credentialed CORS.
+Phases 1–4 implement authentication, store reads, user listing/creation/editing, fixed role listing, master management, receipt/issue posting, inventory reads and transfers. See the [Phase 2 report](phase2-verification.md), [Phase 3 report](phase3-verification.md), [Phase 4 report](phase4-verification.md), and [transfer OpenAPI contract](openapi-transfers.json). Reports/dashboard aggregation and audit viewer routes below remain planned. Prefix all application routes with `/api/v1`. Sanctum CSRF initialization uses `/sanctum/csrf-cookie`. Cookie credentials and CSRF header are required for browser mutations; use a same-origin dev proxy. Production uses HTTPS, Secure/HttpOnly session cookies and SameSite=Lax; no wildcard credentialed CORS.
 
 | Area | Routes |
 | --- | --- |
@@ -14,6 +14,8 @@ Phases 1–3 implement authentication, store reads, admin user listing, master m
 | Audit | GET /audit-logs |
 
 No deletes of historical records or ledger writes. Master deactivation is PATCH. User changes include is_active, seeded role assignment and store assignments under users.manage; arbitrary role/permission creation is deferred. Reject requires a nonblank reason of at most 1000 characters. Draft endpoints accept store IDs and lines `{product_id, quantity}`; actor, numbering, status and source fields are server-derived.
+
+User create/edit accepts name, email, a fixed role string, is_active and store_ids (an array, which may be empty); password is required on create and optional on edit, 12–128 characters. User resources distinguish assigned_store_ids from effective store_ids, because Admin can access all stores. Removal of the last active Admin returns 409 LAST_ADMIN. Role/activation changes are serialized and audit metadata excludes passwords. GET /roles returns the fixed role-name list; no role creation is exposed.
 
 Resource success: `{data: resource, meta: {request_id}}`. Collections add pagination meta and links. Errors: `{error: {code, message, details}, meta: {request_id}}`; details is an array, with validation entries containing field/message. Quantities are strings with four decimal places. Datetimes are ISO-8601 UTC. Successful creation returns 201; reads, updates and actions return 200; logout returns 204.
 
