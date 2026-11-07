@@ -1,5 +1,88 @@
 # StockFlow
 
+StockFlow is a fictional multi-store inventory demo with a Laravel API and responsive React workspace. It demonstrates scoped access, atomic receipts/issues, separately approved transfers, exact stock quantities and traceable movement history.
+
+![Actual fictional demo: inventory overview](docs/screenshots/overview.png)
+
+## Architecture
+
+```mermaid
+flowchart LR
+    UI[React / TypeScript / Vite] --> Web[Same-origin web server]
+    Web --> API[Laravel / Sanctum / policies]
+    API --> Posting[Transactional posting services]
+    Posting --> DB[(MySQL InnoDB)]
+    DB --- Ledger[Ledger / balance projection / audit]
+```
+
+## Quick start (PowerShell)
+
+Prerequisites: Git, PHP 8.3+ with PDO MySQL, BCMath, mbstring, XML, curl and zip, Composer 2, Node 24 and MySQL. Provision a dedicated `stockflow` database and user with privileges only on that database.
+
+```powershell
+git clone https://github.com/chanakanaveen/stockflow.git
+cd stockflow/backend
+composer install
+Copy-Item .env.example .env
+php artisan key:generate
+```
+
+Edit ignored `backend/.env`: configure the dedicated database connection, set `APP_URL=http://127.0.0.1:5173`, `DEMO_ENABLED=true`, and choose a unique `DEMO_PASSWORD` of at least 12 characters. Keep `APP_ENV=local`.
+
+```powershell
+php artisan migrate --seed
+php artisan serve --host=127.0.0.1 --port=18000
+```
+
+In a second terminal, from the repository:
+
+```powershell
+cd frontend
+npm ci
+npm run dev
+```
+
+Open [the local app](http://127.0.0.1:5173). Use `manager@stockflow.test` or `admin@stockflow.test` with your configured password. `keeper@stockflow.test` has Main Warehouse access; `auditor@stockflow.test` is read-only. Default seeding supplies accounts and stores, not the populated screenshot dataset. Follow the [demo walkthrough](docs/demo.md) for the isolated 24-product browser fixture. Demo seeding refuses production and does not reset existing passwords.
+
+## Release and portfolio material
+
+- [Actual screenshot gallery and reproducible demo](docs/demo.md)
+- [API examples](docs/api-examples.md) and [OpenAPI contract](docs/openapi.json)
+- [Deployment and recovery runbook](docs/deployment.md)
+- [Video script and portfolio description](docs/portfolio.md)
+- [Release evidence and hygiene](docs/release-checklist.md)
+- [Phase 6 verification](docs/phase6-verification.md) and [limitations/roadmap](docs/roadmap.md)
+
+No public deployment, recorded video, commercial results or production capacity claim is included. Full Compose execution and backup restoration remain unverified. Phase 5 recorded 12 moderate development-tool advisories and zero production dependency advisories; those results are dated evidence. No open-source license has been selected. Third-party packages retain their own licenses; Composer/npm lockfiles identify the dependency inventory.
+
+## Checks
+
+Configure the isolated `stockflow_test` database/user first using [setup](docs/setup.md). Browser tests intentionally reset that schema; run them after backend tests, never concurrently.
+
+```powershell
+cd backend
+php artisan test
+php vendor/bin/pint --test
+php vendor/bin/phpstan analyse --no-progress --memory-limit=512M
+composer validate --strict
+cd ../frontend
+npm run typecheck
+npm run lint
+npm run test -- --run
+npm run build
+npx playwright install chromium
+npm run test:e2e
+cd ../backend
+php artisan inventory:reconcile --env=testing
+cd ..
+node scripts/verify-openapi.mjs
+node scripts/verify-docs.mjs
+```
+
+Phase 5 recorded 62 backend tests / 476 assertions, 18 UI tests and green Linux/MySQL 8.4 CI. Phase 6 reran the three browser scenarios, fresh-checkout setup/build/authentication, reconciliation and documentation checks; it did not rerun the full backend suite. Its fresh dependency audit reports seven moderate development advisories and zero production vulnerabilities. See [dated verification evidence](docs/phase6-verification.md).
+
+## Application and verification history
+
 StockFlow is a multi-store inventory management project with a responsive React workspace and Laravel API. It supports secure sign-in, role-based store access, inventory masters, atomic receipts/issues, approved transfers, balances and a permanent stock ledger.
 
 Implemented foundation:

@@ -18,7 +18,7 @@
 | 3 — Transfers and approvals | Implemented and verified with approved native-MySQL exception | 56 backend tests / 406 assertions including eight new transfer races; static analysis, formatting, Composer, reconciliation and API route checks passed |
 | 4 — React dashboard | Implemented and verified with approved native-MySQL exception | 16 UI tests, 2 real-browser scenarios, backend regression checks, typecheck/lint/build and static analysis passed |
 | 5 — Reporting and hardening | Implemented and verified locally and in GitHub CI | 62 backend tests / 476 assertions; 18 UI tests; 3 browser scenarios; MySQL 8.4 CI, query/static/build checks passed |
-| 6 — Portfolio and release readiness | Pending | Not run |
+| 6 — Portfolio and release readiness | Completed as a documentation/demo checkpoint; not a production deployment | Fresh-checkout install/build/authentication, 3 browser scenarios, reconciliation, API/docs/hygiene checks passed; see Phase 6 report |
 
 ## Phase 4 — 2026-11-03
 
@@ -80,3 +80,12 @@
 
 - Phase 5 publication: feature commit f3698da and browser-check correction 8cc6964 were pushed to origin/main. The [successful CI run](https://github.com/chanakanaveen/stockflow/actions/runs/41613736051) verifies that code. This documentation follow-up records the result; final local/remote agreement is checked after its push.
 - Remaining limits: 12 moderate development-tool advisories; full Docker Compose stack unexecuted. No deployment or Phase 6 implementation was performed.
+
+## Phase 6 — 2026-11-07
+
+- Authorized by the user's request to continue to the next stage after stopping the local app.
+- Completed: README quick start and architecture, eight actual application screenshots, reproducible fictional demo and role walkthrough, authenticated API examples, deployment/recovery runbook, portfolio description, 90-second video script, release evidence checklist and roadmap. Existing ERD and business-rule diagrams remain linked. Browser tests now capture draft/submitted/posted transfers and products; no application behavior, dependencies or schema changed.
+- Verified: clean local clone with fresh Composer/npm installs; key generation and ordinary migrate/seed against the isolated test connection; frontend production build and real authentication/CSRF/role/store checks through its proxy. The complete browser rerun passed all 3 scenarios in 1.4 minutes, with fresh migrations and service-posted opening stock. Reconciliation reported all four mismatch counts zero. Typecheck/lint and 50-operation OpenAPI checks passed. Markdown links, screenshot review, diff and secret-pattern/history checks passed; see the detailed report.
+- Initial browser attempt passed two scenarios but timed out waiting for the CSV button while pages repeatedly reloaded during parallel checkout installation. A complete rerun after installation passed without changing application or export assertions. The stage remained uncommitted until this gate passed.
+- Fresh npm audit: 7 moderate development-tool advisories, no high/critical findings; production audit zero. Phase 5's 12-advisory result remains historical. Full backend/unit suites were not repeated for this documentation/screenshot-only change; prior results are linked rather than relabeled.
+- Pending outside this checkpoint: full Compose execution, production deployment, restore drill, dependency advisory resolution, license decision and an actual video recording. No failing required Phase 6 checks remain. Commit/push outcome and clean-tree agreement are reported after publication, not predicted here.
